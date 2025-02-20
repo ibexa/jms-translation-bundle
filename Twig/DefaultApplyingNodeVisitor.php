@@ -25,7 +25,6 @@ use Twig\Environment;
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\Binary\EqualBinary;
 use Twig\Node\Expression\ConditionalExpression;
-use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Expression\FilterExpression;
 use Twig\Node\Node;
 use Twig\NodeVisitor\NodeVisitorInterface;
@@ -90,7 +89,7 @@ class DefaultApplyingNodeVisitor implements NodeVisitorInterface
                 // wrap the default node in a |replace filter
                 $defaultNode = new FilterExpression(
                     $arguments[0],
-                    new ConstantExpression('replace', $lineno),
+                    $env->getFilter('replace'),
                     new Node([$wrappingNodeArguments[0]]),
                     $lineno
                 );
