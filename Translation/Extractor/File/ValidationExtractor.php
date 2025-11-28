@@ -185,8 +185,8 @@ class ValidationExtractor implements FileVisitorInterface, NodeVisitor
 
         foreach ($metadata->getConstrainedProperties() as $property) {
             $memberMetadata = $metadata->getPropertyMetadata($property);
-            foreach ($memberMetadata as $metadata) {
-                $constraints = $metadata->getConstraints();
+            foreach ($memberMetadata as $innerMetadata) {
+                $constraints = $innerMetadata->getConstraints();
                 $this->extractFromConstraints($constraints);
             }
         }
