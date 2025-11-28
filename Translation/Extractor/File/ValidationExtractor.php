@@ -26,7 +26,7 @@ use JMS\TranslationBundle\Translation\Extractor\FileVisitorInterface;
 use PhpParser\Node;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
-use Symfony\Component\Validator\Mapping\ClassMetadata;
+use Symfony\Component\Validator\Mapping\ClassMetadataInterface;
 use Symfony\Component\Validator\Mapping\Factory\MetadataFactoryInterface;
 use Symfony\Component\Validator\Mapping\MetadataInterface;
 use Twig\Node\Node as TwigNode;
@@ -179,7 +179,7 @@ class ValidationExtractor implements FileVisitorInterface, NodeVisitor
 
     private function extractFromClassMetadata(MetadataInterface $metadata): void
     {
-        if (!$metadata instanceof ClassMetadata) {
+        if (!$metadata instanceof ClassMetadataInterface) {
             return;
         }
 
