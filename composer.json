@@ -37,6 +37,7 @@
         "doctrine/coding-standard": "^9.0",
         "matthiasnoback/symfony-dependency-injection-test": "^6.0",
         "nyholm/nsa": "^1.0.1",
+        "phpunit/phpunit": "^11.5",
         "symfony/phpunit-bridge": "^7.2",
         "sensio/framework-extra-bundle": "^6.2.4",
         "symfony/asset": "^5.4 || ^6.4 || ^7.1",
