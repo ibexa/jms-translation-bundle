@@ -49,7 +49,8 @@
         "symfony/security-csrf": "^6.4 || ^7.1",
         "symfony/property-access": "^6.4 || ^7.1",
         "symfony/routing": "^6.4 || ^7.1",
-        "symfony/twig-bundle": "^6.4 || ^7.1"
+        "symfony/twig-bundle": "^6.4 || ^7.1",
+        "phpunit/phpunit": "^11.5"
     },
     "config": {
         "sort-packages": true,
