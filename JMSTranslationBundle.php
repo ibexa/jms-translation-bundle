@@ -28,7 +28,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 final class JMSTranslationBundle extends Bundle
 {
-    public const VERSION = '3.0.0-DEV';
+    public const VERSION = '1.1.0-DEV';
 
     #[\Override()]
     public function build(ContainerBuilder $container): void
