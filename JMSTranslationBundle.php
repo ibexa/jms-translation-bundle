@@ -28,6 +28,9 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 final class JMSTranslationBundle extends Bundle
 {
+    /**
+     * Const used to produce "tool-version" attribute value in XLIFF translation files. Do not change due to BC.
+     */
     public const VERSION = '1.1.0-DEV';
 
     #[\Override()]
