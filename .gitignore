@@ -40,3 +40,5 @@ phpcs.xml
 .phpunit.result.cache
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
+# Functional tests output:
+/Tests/Functional/config/reference.php
