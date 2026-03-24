@@ -22,7 +22,6 @@ jobs:
       fail-fast: false
       matrix:
         symfony-version:
-          - '^6.4'
           - '^7.2'
         php-version:
           - '8.3'
