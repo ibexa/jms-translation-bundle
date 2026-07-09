@@ -73,7 +73,8 @@ class ExtractTranslationCommand extends Command
             ->addOption('intl-icu', null, InputOption::VALUE_NONE, 'Flag to indicate if translations should be dumped to using the ICU message format.')
             ->addOption('default-output-format', null, InputOption::VALUE_REQUIRED, 'The default output format (defaults to xlf).')
             ->addOption('keep', null, InputOption::VALUE_NONE, 'Define if the updater service should keep the old translation (defaults to false).')
-            ->addOption('external-translations-dir', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'Load external translation resources');
+            ->addOption('external-translations-dir', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'Load external translation resources')
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force-refresh the translation of existing, writable messages from the scan, instead of only filling it in when currently empty. Approved/reviewed messages are never touched.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -98,6 +99,7 @@ class ExtractTranslationCommand extends Command
 
             $output->writeln(sprintf('Extracting Translations for locale <info>%s</info>', $locale));
             $output->writeln(sprintf('Keep old translations: <info>%s</info>', $config->isKeepOldMessages() ? 'Yes' : 'No'));
+            $output->writeln(sprintf('Force refresh: <info>%s</info>', $config->isForced() ? 'Yes' : 'No'));
             $output->writeln(sprintf('Output-Path: <info>%s</info>', $config->getTranslationsDir()));
             $output->writeln(sprintf('Directories: <info>%s</info>', implode(', ', $config->getScanDirs())));
             $output->writeln(sprintf('Excluded Directories: <info>%s</info>', $config->getExcludedDirs() ? implode(', ', $config->getExcludedDirs()) : '# none #'));
@@ -118,6 +120,13 @@ class ExtractTranslationCommand extends Command
                 $output->writeln('Added Messages: ' . count($changeSet->getAddedMessages()));
                 if ($input->hasParameterOption('--verbose')) {
                     foreach ($changeSet->getAddedMessages() as $message) {
+                        $output->writeln($message->getId() . '-> ' . $message->getDesc());
+                    }
+                }
+
+                $output->writeln('Changed Messages: ' . count($changeSet->getChangedMessages()));
+                if ($input->hasParameterOption('--verbose')) {
+                    foreach ($changeSet->getChangedMessages() as $message) {
                         $output->writeln($message->getId() . '-> ' . $message->getDesc());
                     }
                 }
@@ -216,6 +225,10 @@ class ExtractTranslationCommand extends Command
 
         if ($loadResource = $input->getOption('external-translations-dir')) {
             $builder->setLoadResources($loadResource);
+        }
+
+        if ($input->getOption('force')) {
+            $builder->setForce(true);
         }
     }
 }

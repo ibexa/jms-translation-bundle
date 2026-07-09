@@ -353,30 +353,31 @@ class Message
      * The result of both methods is the same, except that the result will end up in the existing message,
      * instead of the scanned message, so extra information read from the existing message is not discarded.
      *
+     * `desc`/`meaning` always come from the freshly scanned message: they are derived from the source
+     * code (e.g. @Desc annotations), never edited by a translator, so they must never go stale.
+     * `localeString` (the actual translation) is translator-provided content and is only refreshed
+     * from the scan when it is currently empty, unless $force is true.
+     *
      * @author Dieter Peeters <peetersdiet@gmail.com>
      *
      * @param Message $message
+     * @param bool    $force   overwrite an existing, non-empty localeString with the scanned value
      */
-    public function mergeScanned(Message $message)
+    public function mergeScanned(Message $message, $force = false)
     {
         if ($this->id !== $message->getId()) {
             throw new RuntimeException(sprintf('You can only merge messages with the same id. Expected id "%s", but got "%s".', $this->id, $message->getId()));
         }
 
-        if (null === $this->getMeaning()) {
-            $this->meaning = $message->getMeaning();
-        }
-
-        if (null === $this->getDesc()) {
-            $this->desc = $message->getDesc();
-        }
+        $this->meaning = $message->getMeaning();
+        $this->desc = $message->getDesc();
 
         $this->sources = [];
         foreach ($message->getSources() as $source) {
             $this->addSource($source);
         }
 
-        if (!$this->getLocaleString()) {
+        if ($force || !$this->getLocaleString()) {
             $this->localeString = $message->getLocaleString();
         }
     }

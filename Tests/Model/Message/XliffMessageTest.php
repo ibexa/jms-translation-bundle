@@ -282,4 +282,57 @@ class XliffMessageTest extends MessageTest
         $this->assertTrue($existingMessage4->isApproved());
         $this->assertEquals(XliffMessage::STATE_TRANSLATED, $existingMessage4->getState());
     }
+
+    public function testMergeScannedAlwaysResyncsDescWhenWritable(): void
+    {
+        $existingMessage = new XliffMessage('foo');
+        $existingMessage->setDesc('old_desc');
+        $existingMessage->setLocaleString('translated');
+        $existingMessage->setApproved(false);
+        $existingMessage->setState(XliffMessage::STATE_NONE);
+
+        $scannedMessage = new XliffMessage('foo');
+        $scannedMessage->setDesc('new_desc');
+
+        $existingMessage->mergeScanned($scannedMessage);
+
+        $this->assertEquals('new_desc', $existingMessage->getDesc());
+        $this->assertEquals('translated', $existingMessage->getLocaleString());
+    }
+
+    public function testMergeScannedForceOverwritesLocaleStringWhenWritable(): void
+    {
+        $existingMessage = new XliffMessage('foo');
+        $existingMessage->setDesc('old_desc');
+        $existingMessage->setLocaleString('translated');
+        $existingMessage->setApproved(false);
+        $existingMessage->setState(XliffMessage::STATE_NONE);
+
+        $scannedMessage = new XliffMessage('foo');
+        $scannedMessage->setDesc('new_desc');
+        $scannedMessage->setLocaleString('scanned_default');
+
+        $existingMessage->mergeScanned($scannedMessage, true);
+
+        $this->assertEquals('new_desc', $existingMessage->getDesc());
+        $this->assertEquals('scanned_default', $existingMessage->getLocaleString());
+    }
+
+    public function testMergeScannedForceDoesNotOverwriteWhenNotWritable(): void
+    {
+        $existingMessage = new XliffMessage('foo');
+        $existingMessage->setDesc('old_desc');
+        $existingMessage->setLocaleString('translated');
+        $existingMessage->setApproved(true);
+        $existingMessage->setState(XliffMessage::STATE_TRANSLATED);
+
+        $scannedMessage = new XliffMessage('foo');
+        $scannedMessage->setDesc('new_desc');
+        $scannedMessage->setLocaleString('scanned_default');
+
+        $existingMessage->mergeScanned($scannedMessage, true);
+
+        $this->assertEquals('old_desc', $existingMessage->getDesc());
+        $this->assertEquals('translated', $existingMessage->getLocaleString());
+    }
 }

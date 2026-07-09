@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace JMS\TranslationBundle\Translation\Comparison;
 
+use JMS\TranslationBundle\Model\Message;
 use JMS\TranslationBundle\Model\MessageCatalogue;
 
 /**
@@ -56,6 +57,7 @@ class CatalogueComparator
     public function compare(MessageCatalogue $current, MessageCatalogue $new)
     {
         $newMessages = [];
+        $changedMessages = [];
 
         foreach ($new->getDomains() as $name => $domain) {
             if ($this->domains && !isset($this->domains[$name])) {
@@ -68,7 +70,10 @@ class CatalogueComparator
 
             foreach ($domain->all() as $message) {
                 if ($current->has($message)) {
-                    // FIXME: Compare what has changed
+                    $existingMessage = $current->get($message->getId(), $message->getDomain());
+                    if ($this->hasContentChanged($existingMessage, $message)) {
+                        $changedMessages[] = $message;
+                    }
 
                     continue;
                 }
@@ -96,6 +101,20 @@ class CatalogueComparator
             }
         }
 
-        return new ChangeSet($newMessages, $deletedMessages);
+        return new ChangeSet($newMessages, $deletedMessages, $changedMessages);
+    }
+
+    /**
+     * Compares the code-derived content of a message (desc/meaning) between the version
+     * currently on disk and the freshly scanned one. Deliberately ignores localeString,
+     * since that is translator-provided content and is expected to differ until a human
+     * (re)translates it.
+     *
+     * @return bool
+     */
+    private function hasContentChanged(Message $existing, Message $scanned)
+    {
+        return $existing->getDesc() !== $scanned->getDesc()
+            || $existing->getMeaning() !== $scanned->getMeaning();
     }
 }

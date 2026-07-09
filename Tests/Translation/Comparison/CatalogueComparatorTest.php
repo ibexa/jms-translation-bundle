@@ -46,4 +46,49 @@ class CatalogueComparatorTest extends TestCase
 
         $this->assertEquals($expected, $comparator->compare($current, $new));
     }
+
+    public function testCompareDetectsChangedDesc(): void
+    {
+        $current = new MessageCatalogue();
+        $current->add(Message::create('foo')->setDesc('old_desc')->setLocaleString('translated'));
+
+        $new = new MessageCatalogue();
+        $new->add(Message::create('foo')->setDesc('new_desc'));
+
+        $comparator = new CatalogueComparator();
+        $changeSet  = $comparator->compare($current, $new);
+
+        $this->assertCount(0, $changeSet->getAddedMessages());
+        $this->assertCount(0, $changeSet->getDeletedMessages());
+        $this->assertCount(1, $changeSet->getChangedMessages());
+        $this->assertSame('foo', $changeSet->getChangedMessages()[0]->getId());
+    }
+
+    public function testCompareDetectsChangedMeaning(): void
+    {
+        $current = new MessageCatalogue();
+        $current->add(Message::create('foo')->setMeaning('old_meaning'));
+
+        $new = new MessageCatalogue();
+        $new->add(Message::create('foo')->setMeaning('new_meaning'));
+
+        $comparator = new CatalogueComparator();
+        $changeSet  = $comparator->compare($current, $new);
+
+        $this->assertCount(1, $changeSet->getChangedMessages());
+    }
+
+    public function testCompareIgnoresLocaleStringDifferencesForChangedMessages(): void
+    {
+        $current = new MessageCatalogue();
+        $current->add(Message::create('foo')->setDesc('desc')->setLocaleString('translated'));
+
+        $new = new MessageCatalogue();
+        $new->add(Message::create('foo')->setDesc('desc'));
+
+        $comparator = new CatalogueComparator();
+        $changeSet  = $comparator->compare($current, $new);
+
+        $this->assertCount(0, $changeSet->getChangedMessages());
+    }
 }

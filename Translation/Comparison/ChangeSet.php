@@ -33,13 +33,23 @@ class ChangeSet
     private $deletedMessages;
 
     /**
+     * Messages that exist in both catalogues (same id+domain), but whose code-derived
+     * content (desc/meaning) has drifted from what is currently on disk.
+     *
+     * @var array
+     */
+    private $changedMessages;
+
+    /**
      * @param array $addedMessages
      * @param array $deletedMessages
+     * @param array $changedMessages
      */
-    public function __construct(array $addedMessages, array $deletedMessages)
+    public function __construct(array $addedMessages, array $deletedMessages, array $changedMessages = [])
     {
         $this->addedMessages = $addedMessages;
         $this->deletedMessages = $deletedMessages;
+        $this->changedMessages = $changedMessages;
     }
 
     /**
@@ -56,5 +66,13 @@ class ChangeSet
     public function getDeletedMessages()
     {
         return $this->deletedMessages;
+    }
+
+    /**
+     * @return array
+     */
+    public function getChangedMessages()
+    {
+        return $this->changedMessages;
     }
 }
