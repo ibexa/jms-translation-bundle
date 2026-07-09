@@ -38,6 +38,7 @@ class ExtractCommandTest extends BaseCommandTestCase
         $expectedOutput =
             'Extracting Translations for locale en' . "\n"
            . 'Keep old translations: No' . "\n"
+           . 'Force refresh: No' . "\n"
            . 'Output-Path: ' . $outputDir . "\n"
            . 'Directories: ' . $inputDir . "\n"
            . 'Excluded Directories: Tests' . "\n"
@@ -89,5 +90,91 @@ class ExtractCommandTest extends BaseCommandTestCase
         foreach ($expectedOutput as $transID) {
             $this->assertStringContainsString($transID, $output->getContent());
         }
+    }
+
+    public function testExtractRefreshesDescButKeepsTargetWithoutForce(): void
+    {
+        $scanDir = sys_get_temp_dir() . '/' . uniqid('extract_force_src');
+        mkdir($scanDir, 0777, true);
+        $outputDir = sys_get_temp_dir() . '/' . uniqid('extract_force_out');
+
+        $phpFile = $scanDir . '/Controller.php';
+        file_put_contents($phpFile, $this->getControllerFixture('Original'));
+
+        $this->runExtract($scanDir, $outputDir);
+
+        $contents = file_get_contents($outputDir . '/messages.en.xlf');
+        $this->assertStringContainsString('<source>Original</source>', $contents);
+        $this->assertMatchesRegularExpression('/<target[^>]*>Original<\/target>/', $contents);
+
+        // Simulate a developer changing the default text (@Desc) in code.
+        file_put_contents($phpFile, $this->getControllerFixture('Updated'));
+        $this->runExtract($scanDir, $outputDir);
+
+        $contents = file_get_contents($outputDir . '/messages.en.xlf');
+        $this->assertStringContainsString(
+            '<source>Updated</source>',
+            $contents,
+            'desc/source must always be resynced from the scan, even without --force'
+        );
+        $this->assertMatchesRegularExpression(
+            '/<target[^>]*>Original<\/target>/',
+            $contents,
+            'target must be preserved without --force'
+        );
+    }
+
+    public function testExtractForceRefreshesTarget(): void
+    {
+        $scanDir = sys_get_temp_dir() . '/' . uniqid('extract_force_src');
+        mkdir($scanDir, 0777, true);
+        $outputDir = sys_get_temp_dir() . '/' . uniqid('extract_force_out');
+
+        $phpFile = $scanDir . '/Controller.php';
+        file_put_contents($phpFile, $this->getControllerFixture('Original'));
+
+        $this->runExtract($scanDir, $outputDir);
+
+        file_put_contents($phpFile, $this->getControllerFixture('Updated'));
+        $this->runExtract($scanDir, $outputDir, ['--force']);
+
+        $contents = file_get_contents($outputDir . '/messages.en.xlf');
+        $this->assertStringContainsString('<source>Updated</source>', $contents);
+        $this->assertMatchesRegularExpression(
+            '/<target[^>]*>Updated<\/target>/',
+            $contents,
+            '--force must resync the target too'
+        );
+    }
+
+    private function getControllerFixture(string $desc): string
+    {
+        return <<<PHP
+<?php
+
+class ForceTestController
+{
+    private \$translator;
+
+    public function indexAction()
+    {
+        return /** @Desc("{$desc}") */ \$this->translator->trans('force.foo');
+    }
+}
+
+PHP;
+    }
+
+    private function runExtract(string $scanDir, string $outputDir, array $extraArgs = []): void
+    {
+        $input = new ArgvInput(array_merge([
+            'app/console',
+            'translation:extract',
+            'en',
+            '--dir=' . $scanDir,
+            '--output-dir=' . $outputDir,
+        ], $extraArgs));
+
+        $this->getApp()->run($input, new Output());
     }
 }

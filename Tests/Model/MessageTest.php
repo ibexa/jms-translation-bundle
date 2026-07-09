@@ -161,6 +161,50 @@ class MessageTest extends TestCase
         $this->assertEquals([], $message->getSources());
     }
 
+    public function testMergeScannedAlwaysResyncsDescAndMeaning()
+    {
+        $message = new Message('foo');
+        $message->setDesc('old_desc');
+        $message->setMeaning('old_meaning');
+        $message->setLocaleString('translated');
+
+        $scannedMessage = new Message('foo');
+        $scannedMessage->setDesc('new_desc');
+        $scannedMessage->setMeaning('new_meaning');
+
+        $message->mergeScanned($scannedMessage);
+
+        $this->assertEquals('new_desc', $message->getDesc());
+        $this->assertEquals('new_meaning', $message->getMeaning());
+        $this->assertEquals('translated', $message->getLocaleString());
+    }
+
+    public function testMergeScannedKeepsLocaleStringByDefault()
+    {
+        $message = new Message('foo');
+        $message->setLocaleString('translated');
+
+        $scannedMessage = new Message('foo');
+        $scannedMessage->setLocaleString('scanned_default');
+
+        $message->mergeScanned($scannedMessage);
+
+        $this->assertEquals('translated', $message->getLocaleString());
+    }
+
+    public function testMergeScannedForceOverwritesLocaleString()
+    {
+        $message = new Message('foo');
+        $message->setLocaleString('translated');
+
+        $scannedMessage = new Message('foo');
+        $scannedMessage->setLocaleString('scanned_default');
+
+        $message->mergeScanned($scannedMessage, true);
+
+        $this->assertEquals('scanned_default', $message->getLocaleString());
+    }
+
     public function testGetIsNew()
     {
         $message = new Message('foo');

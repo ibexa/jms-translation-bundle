@@ -98,6 +98,11 @@ final class Config
     private $loadResources;
 
     /**
+     * @var bool
+     */
+    private $force;
+
+    /**
      * @param string $translationsDir
      * @param string $locale
      * @param array $ignoredDomains
@@ -110,8 +115,9 @@ final class Config
      * @param array $enabledExtractors
      * @param bool $keepOldMessages
      * @param array $loadResources
+     * @param bool $force force-refresh the translation (localeString) of existing, writable messages from the scan
      */
-    public function __construct($translationsDir, $locale, array $ignoredDomains, array $domains, $outputFormat, $defaultOutputFormat, $useIcuMessageFormat, array $scanDirs, array $excludedDirs, array $excludedNames, array $enabledExtractors, $keepOldMessages, array $loadResources)
+    public function __construct($translationsDir, $locale, array $ignoredDomains, array $domains, $outputFormat, $defaultOutputFormat, $useIcuMessageFormat, array $scanDirs, array $excludedDirs, array $excludedNames, array $enabledExtractors, $keepOldMessages, array $loadResources, $force = false)
     {
         if (empty($translationsDir)) {
             throw new InvalidArgumentException('The directory where translations are must be set.');
@@ -152,6 +158,7 @@ final class Config
         $this->enabledExtractors = $enabledExtractors;
         $this->keepOldMessages = $keepOldMessages;
         $this->loadResources = $loadResources;
+        $this->force = $force;
     }
 
     /**
@@ -284,5 +291,13 @@ final class Config
     public function getLoadResources()
     {
         return $this->loadResources;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isForced()
+    {
+        return $this->force;
     }
 }

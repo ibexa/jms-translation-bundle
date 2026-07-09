@@ -267,7 +267,7 @@ class Updater
                 }
 
                 $existingMessage = clone $this->existingCatalogue->get($message->getId(), $message->getDomain());
-                $existingMessage->mergeScanned($message);
+                $existingMessage->mergeScanned($message, $this->config->isForced());
                 $this->scannedCatalogue->set($existingMessage, true);
             }
         }
