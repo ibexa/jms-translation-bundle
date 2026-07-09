@@ -121,12 +121,14 @@ class CatalogueComparator
     /**
      * Compares a single code-derived value (desc or meaning).
      *
-     * A blank scanned value means the current extractor pass provided no code-derived
-     * information for this field (e.g. no @Desc/@Meaning annotation on this call site).
-     * That is not evidence of drift: the existing catalogue's desc always carries the
-     * previously-extracted <source> text (XliffLoader), and some extractors default
-     * meaning to '' rather than null, so a naive strict comparison would flag nearly
-     * every message that doesn't use an explicit annotation as "changed", forever.
+     * Only flags drift when *both* sides actually carry a value for this field. Some
+     * extractors don't provide a value at all for a given call site (e.g. no @Desc
+     * annotation), and some extractors write the "sample text" a translator sees into
+     * meaning instead of desc while the loaded catalogue never round-trips meaning back
+     * from the file (no <extradata> was ever written for it). In both cases one side is
+     * blank not because content was deleted, but because that field was never
+     * populated for this message to begin with — a naive strict comparison would flag
+     * such messages as "changed" forever, regardless of real drift.
      *
      * @param string|null $existing
      * @param string|null $scanned
@@ -136,11 +138,11 @@ class CatalogueComparator
     private function valueHasChanged($existing, $scanned)
     {
         $scanned = null !== $scanned ? trim($scanned) : '';
-        if ('' === $scanned) {
+        $existing = null !== $existing ? trim($existing) : '';
+
+        if ('' === $scanned || '' === $existing) {
             return false;
         }
-
-        $existing = null !== $existing ? trim($existing) : '';
 
         return $existing !== $scanned;
     }

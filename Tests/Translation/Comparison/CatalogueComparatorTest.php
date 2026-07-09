@@ -130,4 +130,25 @@ class CatalogueComparatorTest extends TestCase
 
         $this->assertCount(0, $changeSet->getChangedMessages());
     }
+
+    /**
+     * Some extractors write the sample text a translator sees into meaning instead
+     * of desc, while the loaded catalogue never had a meaning for that message (no
+     * <extradata> was ever written for it, e.g. because it predates that extractor).
+     * A blank existing value is "never captured", not "captured as empty", so it
+     * must not be mistaken for drift either.
+     */
+    public function testCompareDoesNotFlagBlankExistingMeaningAsChanged(): void
+    {
+        $current = new MessageCatalogue();
+        $current->add(Message::create('foo')->setDesc('desc'));
+
+        $new = new MessageCatalogue();
+        $new->add(Message::create('foo')->setDesc('desc')->setMeaning('Location path'));
+
+        $comparator = new CatalogueComparator();
+        $changeSet  = $comparator->compare($current, $new);
+
+        $this->assertCount(0, $changeSet->getChangedMessages());
+    }
 }
