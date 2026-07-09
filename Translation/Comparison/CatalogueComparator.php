@@ -114,7 +114,34 @@ class CatalogueComparator
      */
     private function hasContentChanged(Message $existing, Message $scanned)
     {
-        return $existing->getDesc() !== $scanned->getDesc()
-            || $existing->getMeaning() !== $scanned->getMeaning();
+        return $this->valueHasChanged($existing->getDesc(), $scanned->getDesc())
+            || $this->valueHasChanged($existing->getMeaning(), $scanned->getMeaning());
+    }
+
+    /**
+     * Compares a single code-derived value (desc or meaning).
+     *
+     * A blank scanned value means the current extractor pass provided no code-derived
+     * information for this field (e.g. no @Desc/@Meaning annotation on this call site).
+     * That is not evidence of drift: the existing catalogue's desc always carries the
+     * previously-extracted <source> text (XliffLoader), and some extractors default
+     * meaning to '' rather than null, so a naive strict comparison would flag nearly
+     * every message that doesn't use an explicit annotation as "changed", forever.
+     *
+     * @param string|null $existing
+     * @param string|null $scanned
+     *
+     * @return bool
+     */
+    private function valueHasChanged($existing, $scanned)
+    {
+        $scanned = null !== $scanned ? trim($scanned) : '';
+        if ('' === $scanned) {
+            return false;
+        }
+
+        $existing = null !== $existing ? trim($existing) : '';
+
+        return $existing !== $scanned;
     }
 }

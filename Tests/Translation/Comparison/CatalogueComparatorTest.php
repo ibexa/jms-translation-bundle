@@ -91,4 +91,43 @@ class CatalogueComparatorTest extends TestCase
 
         $this->assertCount(0, $changeSet->getChangedMessages());
     }
+
+    /**
+     * A message with no code-derived desc (e.g. no @Desc annotation) always has a
+     * non-null desc once loaded from XLIFF, since the loader falls back to <source>.
+     * The freshly scanned message legitimately has no desc in that case, and that
+     * absence must not be mistaken for drift.
+     */
+    public function testCompareDoesNotFlagMessageWithoutScannedDescAsChanged(): void
+    {
+        $current = new MessageCatalogue();
+        $current->add(Message::create('foo')->setDesc('foo')->setLocaleString('foo'));
+
+        $new = new MessageCatalogue();
+        $new->add(Message::create('foo'));
+
+        $comparator = new CatalogueComparator();
+        $changeSet  = $comparator->compare($current, $new);
+
+        $this->assertCount(0, $changeSet->getChangedMessages());
+    }
+
+    /**
+     * Some extractors set meaning to '' rather than leaving it null when no
+     * @Meaning annotation is present, while the loaded catalogue always has a
+     * null meaning in that case. That must not be mistaken for drift either.
+     */
+    public function testCompareDoesNotFlagBlankScannedMeaningAsChanged(): void
+    {
+        $current = new MessageCatalogue();
+        $current->add(Message::create('foo')->setDesc('desc'));
+
+        $new = new MessageCatalogue();
+        $new->add(Message::create('foo')->setDesc('desc')->setMeaning(''));
+
+        $comparator = new CatalogueComparator();
+        $changeSet  = $comparator->compare($current, $new);
+
+        $this->assertCount(0, $changeSet->getChangedMessages());
+    }
 }
