@@ -26,10 +26,14 @@ jobs:
         with:
           coverage: "none"
           php-version: "${{ matrix.php-version }}"
+          tools: 'flex'
           extensions: pdo_sqlite
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v4"
+        env:
+          COMPOSER_FUND: '0'
+          SYMFONY_REQUIRE: '^7.2'
 
       - name: "Run PHPStan"
         run: "composer phpstan"
