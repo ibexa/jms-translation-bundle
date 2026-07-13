@@ -300,6 +300,20 @@ class XliffMessageTest extends MessageTest
         $this->assertEquals('translated', $existingMessage->getLocaleString());
     }
 
+    public function testMergeScannedKeepsExistingDescWhenScanFoundNoneWhileWritable(): void
+    {
+        $existingMessage = new XliffMessage('foo');
+        $existingMessage->setDesc('old_desc');
+        $existingMessage->setApproved(false);
+        $existingMessage->setState(XliffMessage::STATE_NONE);
+
+        $scannedMessage = new XliffMessage('foo');
+
+        $existingMessage->mergeScanned($scannedMessage);
+
+        $this->assertEquals('old_desc', $existingMessage->getDesc());
+    }
+
     public function testMergeScannedForceOverwritesLocaleStringWhenWritable(): void
     {
         $existingMessage = new XliffMessage('foo');

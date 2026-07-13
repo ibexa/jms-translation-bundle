@@ -353,8 +353,11 @@ class Message
      * The result of both methods is the same, except that the result will end up in the existing message,
      * instead of the scanned message, so extra information read from the existing message is not discarded.
      *
-     * `desc`/`meaning` always come from the freshly scanned message: they are derived from the source
-     * code (e.g. @Desc annotations), never edited by a translator, so they must never go stale.
+     * `desc`/`meaning` are resynced from the freshly scanned message whenever the scan actually
+     * provides a value: they are derived from the source code (e.g. @Desc annotations), never
+     * edited by a translator, so they must never go stale. A blank scanned value means this scan
+     * found no @Desc/@Meaning for this message at all (not that it was intentionally cleared), so
+     * it must not overwrite and discard a previously-captured, non-blank value.
      * `localeString` (the actual translation) is translator-provided content and is only refreshed
      * from the scan when it is currently empty, unless $force is true.
      *
@@ -369,8 +372,13 @@ class Message
             throw new RuntimeException(sprintf('You can only merge messages with the same id. Expected id "%s", but got "%s".', $this->id, $message->getId()));
         }
 
-        $this->meaning = $message->getMeaning();
-        $this->desc = $message->getDesc();
+        if ($message->getMeaning()) {
+            $this->meaning = $message->getMeaning();
+        }
+
+        if ($message->getDesc()) {
+            $this->desc = $message->getDesc();
+        }
 
         $this->sources = [];
         foreach ($message->getSources() as $source) {

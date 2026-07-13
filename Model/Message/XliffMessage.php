@@ -253,7 +253,9 @@ class XliffMessage extends Message
     /**
      * {@inheritdoc}
      *
-     * `desc`/`meaning` always come from the freshly scanned message (see {@link Message::mergeScanned()}).
+     * `desc`/`meaning` are resynced from the freshly scanned message whenever the scan actually
+     * provides a value (see {@link Message::mergeScanned()}) — a blank scanned value must not
+     * discard a previously-captured one.
      * `localeString` is only refreshed from the scan when it is currently empty, unless $force is true.
      * Messages that are not {@link isWritable()} (approved, or in a non-"new" XLIFF state) are never
      * touched, regardless of $force.
@@ -270,8 +272,13 @@ class XliffMessage extends Message
 
         $oldDesc = $this->getDesc();
         if ($this->isWritable()) {
-            $this->setMeaning($message->getMeaning());
-            $this->setDesc($message->getDesc());
+            if ($message->getMeaning()) {
+                $this->setMeaning($message->getMeaning());
+            }
+
+            if ($message->getDesc()) {
+                $this->setDesc($message->getDesc());
+            }
 
             if ($force || !$this->getLocaleString()) {
                 $this->setLocaleString($message->getLocaleString());

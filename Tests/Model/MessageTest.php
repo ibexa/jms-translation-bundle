@@ -179,6 +179,20 @@ class MessageTest extends TestCase
         $this->assertEquals('translated', $message->getLocaleString());
     }
 
+    public function testMergeScannedKeepsExistingDescAndMeaningWhenScanFoundNone(): void
+    {
+        $message = new Message('foo');
+        $message->setDesc('old_desc');
+        $message->setMeaning('old_meaning');
+
+        $scannedMessage = new Message('foo');
+
+        $message->mergeScanned($scannedMessage);
+
+        $this->assertEquals('old_desc', $message->getDesc());
+        $this->assertEquals('old_meaning', $message->getMeaning());
+    }
+
     public function testMergeScannedKeepsLocaleStringByDefault(): void
     {
         $message = new Message('foo');
