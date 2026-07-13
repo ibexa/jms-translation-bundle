@@ -359,12 +359,8 @@ final class ConfigBuilder
     /**
      * Force-refresh the translation (localeString) of existing, writable messages from the scan,
      * instead of only filling it in when currently empty.
-     *
-     * @param bool $force
-     *
-     * @return $this
      */
-    public function setForce($force)
+    public function setForce(bool $force): self
     {
         $this->force = $force;
 

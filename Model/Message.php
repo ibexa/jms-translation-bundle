@@ -353,20 +353,17 @@ class Message
      * The result of both methods is the same, except that the result will end up in the existing message,
      * instead of the scanned message, so extra information read from the existing message is not discarded.
      *
-     * `desc`/`meaning` are resynced from the freshly scanned message whenever the scan actually
-     * provides a value: they are derived from the source code (e.g. @Desc annotations), never
-     * edited by a translator, so they must never go stale. A blank scanned value means this scan
-     * found no @Desc/@Meaning for this message at all (not that it was intentionally cleared), so
-     * it must not overwrite and discard a previously-captured, non-blank value.
-     * `localeString` (the actual translation) is translator-provided content and is only refreshed
-     * from the scan when it is currently empty, unless $force is true.
+     * If the scan found a new desc/meaning, it replaces the old one. If the scan found nothing
+     * (blank), the old desc/meaning is kept as-is.
+     *
+     * The translation itself (localeString) is only replaced when it's currently empty, unless
+     * $force is true, in which case it's always replaced with the scanned value.
      *
      * @author Dieter Peeters <peetersdiet@gmail.com>
      *
-     * @param Message $message
-     * @param bool    $force   overwrite an existing, non-empty localeString with the scanned value
+     * @param bool $force overwrite an existing, non-empty localeString with the scanned value
      */
-    public function mergeScanned(Message $message, $force = false)
+    public function mergeScanned(Message $message, bool $force = false)
     {
         if ($this->id !== $message->getId()) {
             throw new RuntimeException(sprintf('You can only merge messages with the same id. Expected id "%s", but got "%s".', $this->id, $message->getId()));

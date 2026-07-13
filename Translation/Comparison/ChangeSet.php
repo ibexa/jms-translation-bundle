@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace JMS\TranslationBundle\Translation\Comparison;
 
+use JMS\TranslationBundle\Model\Message;
+
 class ChangeSet
 {
     /**
@@ -36,14 +38,14 @@ class ChangeSet
      * Messages that exist in both catalogues (same id+domain), but whose code-derived
      * content (desc/meaning) has drifted from what is currently on disk.
      *
-     * @var array
+     * @var Message[]
      */
     private $changedMessages;
 
     /**
-     * @param array $addedMessages
-     * @param array $deletedMessages
-     * @param array $changedMessages
+     * @param array     $addedMessages
+     * @param array     $deletedMessages
+     * @param Message[] $changedMessages
      */
     public function __construct(array $addedMessages, array $deletedMessages, array $changedMessages = [])
     {
@@ -69,7 +71,7 @@ class ChangeSet
     }
 
     /**
-     * @return array
+     * @return Message[]
      */
     public function getChangedMessages()
     {

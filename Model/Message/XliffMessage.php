@@ -253,16 +253,18 @@ class XliffMessage extends Message
     /**
      * {@inheritdoc}
      *
-     * `desc`/`meaning` are resynced from the freshly scanned message whenever the scan actually
-     * provides a value (see {@link Message::mergeScanned()}) — a blank scanned value must not
-     * discard a previously-captured one.
-     * `localeString` is only refreshed from the scan when it is currently empty, unless $force is true.
-     * Messages that are not {@link isWritable()} (approved, or in a non-"new" XLIFF state) are never
-     * touched, regardless of $force.
+     * If the scan found a new desc/meaning, it replaces the old one. If the scan found nothing
+     * (blank), the old desc/meaning is kept as-is.
+     *
+     * The translation itself (localeString) is only replaced when it's currently empty, unless
+     * $force is true, in which case it's always replaced with the scanned value.
+     *
+     * None of this applies to messages that aren't writable (approved, or already translated in
+     * XLIFF) - those are left untouched no matter what $force is.
      *
      * @param bool $force overwrite an existing, non-empty localeString with the scanned value
      */
-    public function mergeScanned(Message $message, $force = false)
+    public function mergeScanned(Message $message, bool $force = false)
     {
         if ($this->getId() !== $message->getId()) {
             throw new RuntimeException(sprintf('You can only merge messages with the same id. Expected id "%s", but got "%s".', $this->getId(), $message->getId()));

@@ -109,10 +109,8 @@ class CatalogueComparator
      * currently on disk and the freshly scanned one. Deliberately ignores localeString,
      * since that is translator-provided content and is expected to differ until a human
      * (re)translates it.
-     *
-     * @return bool
      */
-    private function hasContentChanged(Message $existing, Message $scanned)
+    private function hasContentChanged(Message $existing, Message $scanned): bool
     {
         return $this->valueHasChanged($existing->getDesc(), $scanned->getDesc())
             || $this->valueHasChanged($existing->getMeaning(), $scanned->getMeaning());
@@ -121,21 +119,11 @@ class CatalogueComparator
     /**
      * Compares a single code-derived value (desc or meaning).
      *
-     * Only flags drift when *both* sides actually carry a value for this field. Some
-     * extractors don't provide a value at all for a given call site (e.g. no @Desc
-     * annotation), and some extractors write the "sample text" a translator sees into
-     * meaning instead of desc while the loaded catalogue never round-trips meaning back
-     * from the file (no <extradata> was ever written for it). In both cases one side is
-     * blank not because content was deleted, but because that field was never
-     * populated for this message to begin with — a naive strict comparison would flag
-     * such messages as "changed" forever, regardless of real drift.
-     *
-     * @param string|null $existing
-     * @param string|null $scanned
-     *
-     * @return bool
+     * Only flags a change if both sides actually have a value. If either side is blank,
+     * that's usually just a field that was never filled in (e.g. no @Desc annotation), not
+     * something that got deleted, so we don't want to flag it as changed.
      */
-    private function valueHasChanged($existing, $scanned)
+    private function valueHasChanged(?string $existing, ?string $scanned): bool
     {
         $scanned = null !== $scanned ? trim($scanned) : '';
         $existing = null !== $existing ? trim($existing) : '';
