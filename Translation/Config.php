@@ -115,7 +115,7 @@ final class Config
      * @param array $enabledExtractors
      * @param bool $keepOldMessages
      * @param array $loadResources
-     * @param bool $force force-refresh the translation (localeString) of existing, writable messages from the scan
+     * @param bool $force               force-refresh the translation (localeString) of existing, writable messages from the scan
      */
     public function __construct($translationsDir, $locale, array $ignoredDomains, array $domains, $outputFormat, $defaultOutputFormat, $useIcuMessageFormat, array $scanDirs, array $excludedDirs, array $excludedNames, array $enabledExtractors, $keepOldMessages, array $loadResources, $force = false)
     {

@@ -114,6 +114,7 @@ class CatalogueComparatorTest extends TestCase
 
     /**
      * Some extractors set meaning to '' rather than leaving it null when no
+     *
      * @Meaning annotation is present, while the loaded catalogue always has a
      * null meaning in that case. That must not be mistaken for drift either.
      */
