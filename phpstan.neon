@@ -1,0 +1,17 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 5
+    paths:
+        - Annotation
+        - Command
+        - Controller
+        - DependencyInjection
+        - Exception
+        - Logger
+        - Model
+        - Translation
+        - Twig
+        - Util
+        - Tests
