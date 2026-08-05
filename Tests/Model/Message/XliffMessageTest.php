@@ -318,19 +318,39 @@ class XliffMessageTest extends MessageTest
         $scannedWithDescAndDefault->setLocaleString('scanned_default');
 
         yield 'writable, scan resyncs desc' => [
-            false, XliffMessage::STATE_NONE, $scannedWithDesc, false, 'new_desc', 'translated',
+            false,
+            XliffMessage::STATE_NONE,
+            $scannedWithDesc,
+            false,
+            'new_desc',
+            'translated',
         ];
 
         yield 'writable, scan without desc keeps existing one' => [
-            false, XliffMessage::STATE_NONE, new XliffMessage('foo'), false, 'old_desc', 'translated',
+            false,
+            XliffMessage::STATE_NONE,
+            new XliffMessage('foo'),
+            false,
+            'old_desc',
+            'translated',
         ];
 
         yield 'writable, force overwrites locale string' => [
-            false, XliffMessage::STATE_NONE, $scannedWithDescAndDefault, true, 'new_desc', 'scanned_default',
+            false,
+            XliffMessage::STATE_NONE,
+            $scannedWithDescAndDefault,
+            true,
+            'new_desc',
+            'scanned_default',
         ];
 
         yield 'not writable, force changes nothing' => [
-            true, XliffMessage::STATE_TRANSLATED, $scannedWithDescAndDefault, true, 'old_desc', 'translated',
+            true,
+            XliffMessage::STATE_TRANSLATED,
+            $scannedWithDescAndDefault,
+            true,
+            'old_desc',
+            'translated',
         ];
     }
 }

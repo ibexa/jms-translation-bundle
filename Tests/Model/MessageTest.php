@@ -192,22 +192,38 @@ class MessageTest extends TestCase
         $scannedWithText->setMeaning('new_meaning');
 
         yield 'scan resyncs desc and meaning' => [
-            $scannedWithText, false, 'new_desc', 'new_meaning', 'translated',
+            $scannedWithText,
+            false,
+            'new_desc',
+            'new_meaning',
+            'translated',
         ];
 
         yield 'scan without desc and meaning keeps existing ones' => [
-            new Message('foo'), false, 'old_desc', 'old_meaning', 'translated',
+            new Message('foo'),
+            false,
+            'old_desc',
+            'old_meaning',
+            'translated',
         ];
 
         $scannedWithDefault = new Message('foo');
         $scannedWithDefault->setLocaleString('scanned_default');
 
         yield 'locale string kept by default' => [
-            $scannedWithDefault, false, 'old_desc', 'old_meaning', 'translated',
+            $scannedWithDefault,
+            false,
+            'old_desc',
+            'old_meaning',
+            'translated',
         ];
 
         yield 'locale string overwritten when forced' => [
-            $scannedWithDefault, true, 'old_desc', 'old_meaning', 'scanned_default',
+            $scannedWithDefault,
+            true,
+            'old_desc',
+            'old_meaning',
+            'scanned_default',
         ];
     }
 
