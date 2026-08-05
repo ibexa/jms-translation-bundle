@@ -25,6 +25,7 @@ use JMS\TranslationBundle\Model\Message;
 use JMS\TranslationBundle\Model\Message\XliffMessage;
 use JMS\TranslationBundle\Model\SourceInterface;
 use JMS\TranslationBundle\Tests\Model\MessageTest;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class XliffMessageTest extends MessageTest
 {
@@ -283,70 +284,53 @@ class XliffMessageTest extends MessageTest
         $this->assertEquals(XliffMessage::STATE_TRANSLATED, $existingMessage4->getState());
     }
 
-    public function testMergeScannedAlwaysResyncsDescWhenWritable(): void
-    {
+    #[DataProvider('provideMergeScannedWritabilityCases')]
+    public function testMergeScannedRespectsWritability(
+        bool $approved,
+        ?string $state,
+        XliffMessage $scannedMessage,
+        bool $force,
+        string $expectedDesc,
+        string $expectedLocaleString
+    ): void {
         $existingMessage = new XliffMessage('foo');
         $existingMessage->setDesc('old_desc');
         $existingMessage->setLocaleString('translated');
-        $existingMessage->setApproved(false);
-        $existingMessage->setState(XliffMessage::STATE_NONE);
+        $existingMessage->setApproved($approved);
+        $existingMessage->setState($state);
 
-        $scannedMessage = new XliffMessage('foo');
-        $scannedMessage->setDesc('new_desc');
+        $existingMessage->mergeScanned($scannedMessage, $force);
 
-        $existingMessage->mergeScanned($scannedMessage);
-
-        $this->assertEquals('new_desc', $existingMessage->getDesc());
-        $this->assertEquals('translated', $existingMessage->getLocaleString());
+        $this->assertEquals($expectedDesc, $existingMessage->getDesc());
+        $this->assertEquals($expectedLocaleString, $existingMessage->getLocaleString());
     }
 
-    public function testMergeScannedKeepsExistingDescWhenScanFoundNoneWhileWritable(): void
+    /**
+     * @return iterable<string, array{bool, ?string, XliffMessage, bool, string, string}>
+     */
+    public static function provideMergeScannedWritabilityCases(): iterable
     {
-        $existingMessage = new XliffMessage('foo');
-        $existingMessage->setDesc('old_desc');
-        $existingMessage->setApproved(false);
-        $existingMessage->setState(XliffMessage::STATE_NONE);
+        $scannedWithDesc = new XliffMessage('foo');
+        $scannedWithDesc->setDesc('new_desc');
 
-        $scannedMessage = new XliffMessage('foo');
+        $scannedWithDescAndDefault = new XliffMessage('foo');
+        $scannedWithDescAndDefault->setDesc('new_desc');
+        $scannedWithDescAndDefault->setLocaleString('scanned_default');
 
-        $existingMessage->mergeScanned($scannedMessage);
+        yield 'writable, scan resyncs desc' => [
+            false, XliffMessage::STATE_NONE, $scannedWithDesc, false, 'new_desc', 'translated',
+        ];
 
-        $this->assertEquals('old_desc', $existingMessage->getDesc());
-    }
+        yield 'writable, scan without desc keeps existing one' => [
+            false, XliffMessage::STATE_NONE, new XliffMessage('foo'), false, 'old_desc', 'translated',
+        ];
 
-    public function testMergeScannedForceOverwritesLocaleStringWhenWritable(): void
-    {
-        $existingMessage = new XliffMessage('foo');
-        $existingMessage->setDesc('old_desc');
-        $existingMessage->setLocaleString('translated');
-        $existingMessage->setApproved(false);
-        $existingMessage->setState(XliffMessage::STATE_NONE);
+        yield 'writable, force overwrites locale string' => [
+            false, XliffMessage::STATE_NONE, $scannedWithDescAndDefault, true, 'new_desc', 'scanned_default',
+        ];
 
-        $scannedMessage = new XliffMessage('foo');
-        $scannedMessage->setDesc('new_desc');
-        $scannedMessage->setLocaleString('scanned_default');
-
-        $existingMessage->mergeScanned($scannedMessage, true);
-
-        $this->assertEquals('new_desc', $existingMessage->getDesc());
-        $this->assertEquals('scanned_default', $existingMessage->getLocaleString());
-    }
-
-    public function testMergeScannedForceDoesNotOverwriteWhenNotWritable(): void
-    {
-        $existingMessage = new XliffMessage('foo');
-        $existingMessage->setDesc('old_desc');
-        $existingMessage->setLocaleString('translated');
-        $existingMessage->setApproved(true);
-        $existingMessage->setState(XliffMessage::STATE_TRANSLATED);
-
-        $scannedMessage = new XliffMessage('foo');
-        $scannedMessage->setDesc('new_desc');
-        $scannedMessage->setLocaleString('scanned_default');
-
-        $existingMessage->mergeScanned($scannedMessage, true);
-
-        $this->assertEquals('old_desc', $existingMessage->getDesc());
-        $this->assertEquals('translated', $existingMessage->getLocaleString());
+        yield 'not writable, force changes nothing' => [
+            true, XliffMessage::STATE_TRANSLATED, $scannedWithDescAndDefault, true, 'old_desc', 'translated',
+        ];
     }
 }
