@@ -24,10 +24,20 @@ use JMS\TranslationBundle\Model\Message;
 use JMS\TranslationBundle\Model\MessageCatalogue;
 use JMS\TranslationBundle\Translation\Comparison\CatalogueComparator;
 use JMS\TranslationBundle\Translation\Comparison\ChangeSet;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class CatalogueComparatorTest extends TestCase
 {
+    private CatalogueComparator $comparator;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->comparator = new CatalogueComparator();
+    }
+
     public function testCompareWithMultipleDomains(): void
     {
         $current = new MessageCatalogue();
@@ -38,118 +48,93 @@ class CatalogueComparatorTest extends TestCase
         $new->add(new Message('foo'));
         $new->add(new Message('bar'));
 
-        $expected   = new ChangeSet(
+        $expected = new ChangeSet(
             [new Message('bar')],
             [Message::create('bar', 'routes')->setLocaleString('baz')]
         );
-        $comparator = new CatalogueComparator();
 
-        $this->assertEquals($expected, $comparator->compare($current, $new));
+        $this->assertEquals($expected, $this->comparator->compare($current, $new));
     }
 
-    public function testCompareDetectsChangedDesc(): void
-    {
+    /**
+     * @param list<string> $expectedChangedIds
+     */
+    #[DataProvider('provideComparisonCases')]
+    public function testCompareDetectsDrift(
+        Message $currentMessage,
+        Message $scannedMessage,
+        array $expectedChangedIds
+    ): void {
         $current = new MessageCatalogue();
-        $current->add(Message::create('foo')->setDesc('old_desc')->setLocaleString('translated'));
+        $current->add($currentMessage);
 
         $new = new MessageCatalogue();
-        $new->add(Message::create('foo')->setDesc('new_desc'));
+        $new->add($scannedMessage);
 
-        $comparator = new CatalogueComparator();
-        $changeSet  = $comparator->compare($current, $new);
+        $changeSet = $this->comparator->compare($current, $new);
 
         $this->assertCount(0, $changeSet->getAddedMessages());
         $this->assertCount(0, $changeSet->getDeletedMessages());
-        $this->assertCount(1, $changeSet->getChangedMessages());
-        $this->assertSame('foo', $changeSet->getChangedMessages()[0]->getId());
-    }
-
-    public function testCompareDetectsChangedMeaning(): void
-    {
-        $current = new MessageCatalogue();
-        $current->add(Message::create('foo')->setMeaning('old_meaning'));
-
-        $new = new MessageCatalogue();
-        $new->add(Message::create('foo')->setMeaning('new_meaning'));
-
-        $comparator = new CatalogueComparator();
-        $changeSet  = $comparator->compare($current, $new);
-
-        $this->assertCount(1, $changeSet->getChangedMessages());
-    }
-
-    public function testCompareIgnoresLocaleStringDifferencesForChangedMessages(): void
-    {
-        $current = new MessageCatalogue();
-        $current->add(Message::create('foo')->setDesc('desc')->setLocaleString('translated'));
-
-        $new = new MessageCatalogue();
-        $new->add(Message::create('foo')->setDesc('desc'));
-
-        $comparator = new CatalogueComparator();
-        $changeSet  = $comparator->compare($current, $new);
-
-        $this->assertCount(0, $changeSet->getChangedMessages());
+        $this->assertSame(
+            $expectedChangedIds,
+            array_values(array_map(
+                static fn (Message $message): string => $message->getId(),
+                $changeSet->getChangedMessages()
+            ))
+        );
     }
 
     /**
-     * A message with no code-derived desc (e.g. no @Desc annotation) always has a
-     * non-null desc once loaded from XLIFF, since the loader falls back to <source>.
-     * The freshly scanned message legitimately has no desc in that case, and that
-     * absence must not be mistaken for drift.
+     * @return iterable<string, array{Message, Message, list<string>}>
      */
-    public function testCompareDoesNotFlagMessageWithoutScannedDescAsChanged(): void
+    public static function provideComparisonCases(): iterable
     {
-        $current = new MessageCatalogue();
-        $current->add(Message::create('foo')->setDesc('foo')->setLocaleString('foo'));
+        yield 'changed desc' => [
+            Message::create('foo')->setDesc('old_desc')->setLocaleString('translated'),
+            Message::create('foo')->setDesc('new_desc'),
+            ['foo'],
+        ];
 
-        $new = new MessageCatalogue();
-        $new->add(Message::create('foo'));
+        yield 'changed meaning' => [
+            Message::create('foo')->setMeaning('old_meaning'),
+            Message::create('foo')->setMeaning('new_meaning'),
+            ['foo'],
+        ];
 
-        $comparator = new CatalogueComparator();
-        $changeSet  = $comparator->compare($current, $new);
+        yield 'locale string difference only' => [
+            Message::create('foo')->setDesc('desc')->setLocaleString('translated'),
+            Message::create('foo')->setDesc('desc'),
+            [],
+        ];
 
-        $this->assertCount(0, $changeSet->getChangedMessages());
-    }
+        // A message with no code-derived desc (e.g. no @Desc annotation) always has a
+        // non-null desc once loaded from XLIFF, since the loader falls back to <source>.
+        // The freshly scanned message legitimately has no desc in that case, and that
+        // absence must not be mistaken for drift.
+        yield 'scanned message without desc' => [
+            Message::create('foo')->setDesc('foo')->setLocaleString('foo'),
+            Message::create('foo'),
+            [],
+        ];
 
-    /**
-     * Some extractors set meaning to '' rather than leaving it null when no
-     *
-     * @Meaning annotation is present, while the loaded catalogue always has a
-     * null meaning in that case. That must not be mistaken for drift either.
-     */
-    public function testCompareDoesNotFlagBlankScannedMeaningAsChanged(): void
-    {
-        $current = new MessageCatalogue();
-        $current->add(Message::create('foo')->setDesc('desc'));
+        // Some extractors set meaning to '' rather than leaving it null when no @Meaning
+        // annotation is present, while the loaded catalogue always has a null meaning in
+        // that case. That must not be mistaken for drift either.
+        yield 'blank scanned meaning' => [
+            Message::create('foo')->setDesc('desc'),
+            Message::create('foo')->setDesc('desc')->setMeaning(''),
+            [],
+        ];
 
-        $new = new MessageCatalogue();
-        $new->add(Message::create('foo')->setDesc('desc')->setMeaning(''));
-
-        $comparator = new CatalogueComparator();
-        $changeSet  = $comparator->compare($current, $new);
-
-        $this->assertCount(0, $changeSet->getChangedMessages());
-    }
-
-    /**
-     * Some extractors write the sample text a translator sees into meaning instead
-     * of desc, while the loaded catalogue never had a meaning for that message (no
-     * <extradata> was ever written for it, e.g. because it predates that extractor).
-     * A blank existing value is "never captured", not "captured as empty", so it
-     * must not be mistaken for drift either.
-     */
-    public function testCompareDoesNotFlagBlankExistingMeaningAsChanged(): void
-    {
-        $current = new MessageCatalogue();
-        $current->add(Message::create('foo')->setDesc('desc'));
-
-        $new = new MessageCatalogue();
-        $new->add(Message::create('foo')->setDesc('desc')->setMeaning('Location path'));
-
-        $comparator = new CatalogueComparator();
-        $changeSet  = $comparator->compare($current, $new);
-
-        $this->assertCount(0, $changeSet->getChangedMessages());
+        // Some extractors write the sample text a translator sees into meaning instead
+        // of desc, while the loaded catalogue never had a meaning for that message (no
+        // <extradata> was ever written for it, e.g. because it predates that extractor).
+        // A blank existing value is "never captured", not "captured as empty", so it
+        // must not be mistaken for drift either.
+        yield 'blank existing meaning' => [
+            Message::create('foo')->setDesc('desc'),
+            Message::create('foo')->setDesc('desc')->setMeaning('Location path'),
+            [],
+        ];
     }
 }
