@@ -87,10 +87,7 @@ final class ConfigBuilder
      */
     private $loadResources = [];
 
-    /**
-     * @var bool
-     */
-    private $force = false;
+    private bool $force = false;
 
     /**
      * @param Config $config

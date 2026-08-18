@@ -97,10 +97,7 @@ final class Config
      */
     private $loadResources;
 
-    /**
-     * @var bool
-     */
-    private $force;
+    private bool $force;
 
     /**
      * @param string $translationsDir
@@ -117,7 +114,7 @@ final class Config
      * @param array $loadResources
      * @param bool $force               force-refresh the translation (localeString) of existing, writable messages from the scan
      */
-    public function __construct($translationsDir, $locale, array $ignoredDomains, array $domains, $outputFormat, $defaultOutputFormat, $useIcuMessageFormat, array $scanDirs, array $excludedDirs, array $excludedNames, array $enabledExtractors, $keepOldMessages, array $loadResources, $force = false)
+    public function __construct($translationsDir, $locale, array $ignoredDomains, array $domains, $outputFormat, $defaultOutputFormat, $useIcuMessageFormat, array $scanDirs, array $excludedDirs, array $excludedNames, array $enabledExtractors, $keepOldMessages, array $loadResources, bool $force = false)
     {
         if (empty($translationsDir)) {
             throw new InvalidArgumentException('The directory where translations are must be set.');
@@ -293,10 +290,7 @@ final class Config
         return $this->loadResources;
     }
 
-    /**
-     * @return bool
-     */
-    public function isForced()
+    public function isForced(): bool
     {
         return $this->force;
     }
