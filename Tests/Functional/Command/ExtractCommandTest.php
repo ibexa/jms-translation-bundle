@@ -179,19 +179,19 @@ class ExtractCommandTest extends BaseCommandTestCase
     private function getControllerFixture(string $desc): string
     {
         return <<<PHP
-<?php
+        <?php
 
-class ForceTestController
-{
-    private \$translator;
+        class ForceTestController
+        {
+            private \$translator;
 
-    public function indexAction()
-    {
-        return /** @Desc("{$desc}") */ \$this->translator->trans('force.foo');
-    }
-}
+            public function indexAction()
+            {
+                return /** @Desc("{$desc}") */ \$this->translator->trans('force.foo');
+            }
+        }
 
-PHP;
+        PHP;
     }
 
     /**

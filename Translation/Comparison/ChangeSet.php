@@ -25,12 +25,12 @@ use JMS\TranslationBundle\Model\Message;
 class ChangeSet
 {
     /**
-     * @var array
+     * @var list<Message>
      */
     private $addedMessages;
 
     /**
-     * @var array
+     * @var list<Message>
      */
     private $deletedMessages;
 
@@ -38,14 +38,14 @@ class ChangeSet
      * Messages that exist in both catalogues (same id+domain), but whose code-derived
      * content (desc/meaning) has drifted from what is currently on disk.
      *
-     * @var Message[]
+     * @var list<Message>
      */
     private $changedMessages;
 
     /**
-     * @param array     $addedMessages
-     * @param array     $deletedMessages
-     * @param Message[] $changedMessages
+     * @param list<Message> $addedMessages
+     * @param list<Message> $deletedMessages
+     * @param list<Message> $changedMessages
      */
     public function __construct(array $addedMessages, array $deletedMessages, array $changedMessages = [])
     {
@@ -55,7 +55,7 @@ class ChangeSet
     }
 
     /**
-     * @return array
+     * @return list<Message>
      */
     public function getAddedMessages()
     {
@@ -63,7 +63,7 @@ class ChangeSet
     }
 
     /**
-     * @return array
+     * @return list<Message>
      */
     public function getDeletedMessages()
     {
@@ -71,9 +71,9 @@ class ChangeSet
     }
 
     /**
-     * @return Message[]
+     * @return list<Message>
      */
-    public function getChangedMessages()
+    public function getChangedMessages(): array
     {
         return $this->changedMessages;
     }

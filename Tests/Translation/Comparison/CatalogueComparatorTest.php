@@ -77,10 +77,11 @@ class CatalogueComparatorTest extends TestCase
         $this->assertCount(0, $changeSet->getDeletedMessages());
         $this->assertSame(
             $expectedChangedIds,
-            array_values(array_map(
+            array_map(
                 static fn (Message $message): string => $message->getId(),
-                $changeSet->getChangedMessages()
-            ))
+                $changeSet->getChangedMessages(),
+                []
+            )
         );
     }
 
