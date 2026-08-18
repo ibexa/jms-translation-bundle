@@ -154,7 +154,7 @@ class XliffMessage extends Message
 
     /**
      * @param string $text
-     * @param null $from
+     * @param string|null $from
      *
      * @return $this
      */

@@ -392,7 +392,7 @@ class FormExtractor implements FileVisitorInterface, LoggerAwareInterface, NodeV
 
     /**
      * @param ArrayItem $item
-     * @param null $domain
+     * @param string|null $domain
      */
     private function parseItem($item, $domain = null)
     {

@@ -3,6 +3,13 @@ includes:
 
 parameters:
     level: 5
+    excludePaths:
+        # Input data for the file extractors, parsed by nikic/php-parser and never executed.
+        # The legacy Symfony 2 form types and the deliberately broken code they contain are
+        # what the extractor tests assert against, so they must not be "fixed".
+        analyse:
+            - Tests/Translation/Extractor/File/Fixture
+            - Tests/Translation/Extractor/Fixture
     paths:
         - Annotation
         - Command

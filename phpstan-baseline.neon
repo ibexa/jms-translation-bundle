@@ -43,12 +43,6 @@ parameters:
 			path: Model/Message/XliffMessage.php
 
 		-
-			message: '#^Variable \$from in isset\(\) always exists and is always null\.$#'
-			identifier: isset.variable
-			count: 1
-			path: Model/Message/XliffMessage.php
-
-		-
 			message: '#^Class JMS\\TranslationBundle\\Model\\MessageCollection does not have a constructor and must be instantiated without any parameters\.$#'
 			identifier: new.noConstructor
 			count: 1
@@ -73,160 +67,10 @@ parameters:
 			path: Tests/Functional/BaseTestCase.php
 
 		-
-			message: '#^Parameter \#2 \$from of method JMS\\TranslationBundle\\Model\\Message\\XliffMessage\:\:addNote\(\) expects null, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Tests/Model/Message/XliffMessageTest.php
-
-		-
 			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNull\(\) with string will always evaluate to false\.$#'
 			identifier: method.impossibleType
 			count: 2
 			path: Tests/Model/MessageTest.php
-
-		-
-			message: '#^Parameter \$session of method JMS\\TranslationBundle\\Tests\\Translation\\Extractor\\File\\Fixture\\Controller\:\:__construct\(\) has invalid type Symfony\\Component\\HttpFoundation\\Session\.$#'
-			identifier: class.notFound
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/Controller.php
-
-		-
-			message: '#^Parameter \$translator of method JMS\\TranslationBundle\\Tests\\Translation\\Extractor\\File\\Fixture\\Controller\:\:__construct\(\) has invalid type Symfony\\Component\\Translation\\TranslatorInterface\.$#'
-			identifier: class.notFound
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/Controller.php
-
-		-
-			message: '#^Undefined variable\: \$arr$#'
-			identifier: variable.undefined
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/Controller.php
-
-		-
-			message: '#^Undefined variable\: \$baz$#'
-			identifier: variable.undefined
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/Controller.php
-
-		-
-			message: '#^Undefined variable\: \$foo$#'
-			identifier: variable.undefined
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/Controller.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:add\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 2
-			path: Tests/Translation/Extractor/File/Fixture/MyAttrArrayType.php
-
-		-
-			message: '#^Property JMS\\TranslationBundle\\Tests\\Translation\\Extractor\\File\\Fixture\\MyAuthException\:\:\$foo is never written, only read\.$#'
-			identifier: property.onlyRead
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/MyAuthException.php
-
-		-
-			message: '#^Undefined variable\: \$foo$#'
-			identifier: variable.undefined
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/MyAuthException.php
-
-		-
-			message: '#^Call to method getData\(\) on an unknown class Symfony\\Component\\Form\\Event\\DataEvent\.$#'
-			identifier: class.notFound
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/MyFormSubscriber.php
-
-		-
-			message: '#^Call to method getForm\(\) on an unknown class Symfony\\Component\\Form\\Event\\DataEvent\.$#'
-			identifier: class.notFound
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/MyFormSubscriber.php
-
-		-
-			message: '#^Parameter \$event of method JMS\\TranslationBundle\\Tests\\Translation\\Extractor\\File\\Fixture\\MyFormSubscriber\:\:preSetData\(\) has invalid type Symfony\\Component\\Form\\Event\\DataEvent\.$#'
-			identifier: class.notFound
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/MyFormSubscriber.php
-
-		-
-			message: '#^Instantiated class JMS\\TranslationBundle\\Tests\\Translation\\Extractor\\File\\Fixture\\Length not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/MyFormType.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:add\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 10
-			path: Tests/Translation/Extractor/File/Fixture/MyFormType.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:create\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/MyFormType.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:add\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 3
-			path: Tests/Translation/Extractor/File/Fixture/MyFormTypeWithDefaultDomain.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:add\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 3
-			path: Tests/Translation/Extractor/File/Fixture/MyFormTypeWithDefaultDomainSetDefault.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:add\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 4
-			path: Tests/Translation/Extractor/File/Fixture/MyFormTypeWithInterface.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:add\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 2
-			path: Tests/Translation/Extractor/File/Fixture/MyFormTypeWithSubscriberAndListener.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:add\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 4
-			path: Tests/Translation/Extractor/File/Fixture/MyPlaceholderFormType.php
-
-		-
-			message: '#^Variable \$view might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
-			path: Tests/Translation/Extractor/File/Fixture/template.html.php
-
-		-
-			message: '#^Parameter \#1 \$id of class JMS\\TranslationBundle\\Model\\Message constructor expects string, int given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Tests/Translation/Extractor/File/FormExtractorTest.php
-
-		-
-			message: '#^Property JMS\\TranslationBundle\\Tests\\Translation\\Extractor\\Fixture\\SimpleTest\\Controller\\DefaultController\:\:\$translator is never written, only read\.$#'
-			identifier: property.onlyRead
-			count: 1
-			path: Tests/Translation/Extractor/Fixture/SimpleTest/Controller/DefaultController.php
-
-		-
-			message: '#^Property GlobalNamespace\:\:\$translator is never written, only read\.$#'
-			identifier: property.onlyRead
-			count: 1
-			path: Tests/Translation/Extractor/Fixture/SimpleTest/GlobalNamespace.php
-
-		-
-			message: '#^Variable \$view might not be defined\.$#'
-			identifier: variable.undefined
-			count: 4
-			path: Tests/Translation/Extractor/Fixture/SimpleTest/Resources/views/php_template.html.php
 
 		-
 			message: '#^Method JMS\\TranslationBundle\\Tests\\Util\\FileUtilsTest\:\:__construct\(\) overrides @final method PHPUnit\\Framework\\TestCase\:\:__construct\(\)\.$#'
@@ -379,12 +223,6 @@ parameters:
 			path: Translation/Extractor/File/FormExtractor.php
 
 		-
-			message: '#^Parameter \#2 \$domain of method JMS\\TranslationBundle\\Translation\\Extractor\\File\\FormExtractor\:\:parseItem\(\) expects null, string given\.$#'
-			identifier: argument.type
-			count: 6
-			path: Translation/Extractor/File/FormExtractor.php
-
-		-
 			message: '#^Property JMS\\TranslationBundle\\Translation\\Extractor\\File\\FormExtractor\:\:\$defaultDomain \(string\) does not accept null\.$#'
 			identifier: assign.propertyType
 			count: 1
@@ -393,12 +231,6 @@ parameters:
 		-
 			message: '#^Right side of && is always true\.$#'
 			identifier: booleanAnd.rightAlwaysTrue
-			count: 1
-			path: Translation/Extractor/File/FormExtractor.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between null and null will always evaluate to true\.$#'
-			identifier: identical.alwaysTrue
 			count: 1
 			path: Translation/Extractor/File/FormExtractor.php
 
