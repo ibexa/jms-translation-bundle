@@ -92,7 +92,7 @@ class FormExtractor implements FileVisitorInterface, LoggerAwareInterface, NodeV
     /**
      * @param Node $node
      *
-     * @return null
+     * @return int|Node|Node[]|null
      */
     public function enterNode(Node $node)
     {
@@ -104,14 +104,14 @@ class FormExtractor implements FileVisitorInterface, LoggerAwareInterface, NodeV
         if ($node instanceof Node\Expr\MethodCall) {
             $nodeName = $node->name instanceof Node\Identifier ? $node->name->name : $node->name;
             if (!is_string($nodeName)) {
-                return;
+                return null;
             }
 
             $name = strtolower($nodeName);
             if ('setdefaults' === $name || 'replacedefaults' === $name || 'setdefault' === $name) {
                 $this->parseDefaultsCall($node);
 
-                return;
+                return null;
             }
         }
 
@@ -160,6 +160,8 @@ class FormExtractor implements FileVisitorInterface, LoggerAwareInterface, NodeV
                 }
             }
         }
+
+        return null;
     }
 
     /**
@@ -511,28 +513,31 @@ class FormExtractor implements FileVisitorInterface, LoggerAwareInterface, NodeV
     /**
      * @param Node $node
      *
-     * @return Node[]|void|null
+     * @return int|Node|Node[]|null
      */
     public function leaveNode(Node $node)
     {
+        return null;
     }
 
     /**
      * @param array $nodes
      *
-     * @return Node[]|void|null
+     * @return Node[]|null
      */
     public function beforeTraverse(array $nodes)
     {
+        return null;
     }
 
     /**
      * @param array $nodes
      *
-     * @return Node[]|void|null
+     * @return Node[]|null
      */
     public function afterTraverse(array $nodes)
     {
+        return null;
     }
 
     public function visitFile(\SplFileInfo $file, MessageCatalogue $catalogue)

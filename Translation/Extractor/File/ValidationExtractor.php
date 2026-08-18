@@ -64,7 +64,7 @@ class ValidationExtractor implements FileVisitorInterface, NodeVisitor
     /**
      * @param Node $node
      *
-     * @return void
+     * @return int|Node|Node[]|null
      */
     public function enterNode(Node $node)
     {
@@ -73,26 +73,28 @@ class ValidationExtractor implements FileVisitorInterface, NodeVisitor
                 $this->namespace = property_exists($node->name, 'parts') ? implode('\\', $node->name->parts) : $node->name->name;
             }
 
-            return;
+            return null;
         }
 
         if (!$node instanceof Node\Stmt\Class_) {
-            return;
+            return null;
         }
 
         $name = '' === $this->namespace ? (string) $node->name : $this->namespace . '\\' . $node->name;
 
         if (!class_exists($name)) {
-            return;
+            return null;
         }
 
         $metadata = $this->metadataFactory->getMetadataFor($name);
         if (!$metadata->getConstraints() && !$metadata->getConstrainedProperties()) {
-            return;
+            return null;
         }
 
         $this->extractFromConstraints($metadata->getConstraints());
         $this->extractFromClassMetadata($metadata);
+
+        return null;
     }
 
     /**
@@ -110,28 +112,31 @@ class ValidationExtractor implements FileVisitorInterface, NodeVisitor
     /**
      * @param array $nodes
      *
-     * @return void
+     * @return Node[]|null
      */
     public function beforeTraverse(array $nodes)
     {
+        return null;
     }
 
     /**
      * @param Node $node
      *
-     * @return void
+     * @return int|Node|Node[]|null
      */
     public function leaveNode(Node $node)
     {
+        return null;
     }
 
     /**
      * @param array $nodes
      *
-     * @return void
+     * @return Node[]|null
      */
     public function afterTraverse(array $nodes)
     {
+        return null;
     }
 
     public function visitFile(\SplFileInfo $file, MessageCatalogue $catalogue)

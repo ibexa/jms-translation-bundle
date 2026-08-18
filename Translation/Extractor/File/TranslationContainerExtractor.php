@@ -78,18 +78,18 @@ class TranslationContainerExtractor implements FileVisitorInterface, NodeVisitor
             }
             $this->useStatements = [];
 
-            return;
+            return null;
         }
 
         if ($node instanceof Node\Stmt\UseUse) {
             $nodeAliasName = is_string($node->alias) ? $node->alias : $node->getAlias()->name;
             $this->useStatements[$nodeAliasName] = property_exists($node->name, 'parts') ? implode('\\', $node->name->parts) : $node->name->name;
 
-            return;
+            return null;
         }
 
         if (!$node instanceof Node\Stmt\Class_) {
-            return;
+            return null;
         }
 
         $isContainer = false;
@@ -106,7 +106,7 @@ class TranslationContainerExtractor implements FileVisitorInterface, NodeVisitor
         }
 
         if (!$isContainer) {
-            return;
+            return null;
         }
 
         $messages = call_user_func([$this->namespace . '\\' . $node->name, 'getTranslationMessages']);
@@ -121,6 +121,8 @@ class TranslationContainerExtractor implements FileVisitorInterface, NodeVisitor
 
             $this->catalogue->add($message);
         }
+
+        return null;
     }
 
     /**
@@ -137,28 +139,31 @@ class TranslationContainerExtractor implements FileVisitorInterface, NodeVisitor
     /**
      * @param array $nodes
      *
-     * @return void
+     * @return Node[]|null
      */
     public function beforeTraverse(array $nodes)
     {
+        return null;
     }
 
     /**
      * @param Node $node
      *
-     * @return void
+     * @return int|Node|Node[]|null
      */
     public function leaveNode(Node $node)
     {
+        return null;
     }
 
     /**
      * @param array $nodes
      *
-     * @return void
+     * @return Node[]|null
      */
     public function afterTraverse(array $nodes)
     {
+        return null;
     }
 
     public function visitFile(\SplFileInfo $file, MessageCatalogue $catalogue)
