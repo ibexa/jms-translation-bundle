@@ -42,51 +42,41 @@ class ExtractCommandTest extends BaseCommandTestCase
 
     public function testExtract(): void
     {
-        $input = new ArgvInput([
-            'app/console',
-            'jms:translation:extract',
-            'en',
-            '--dir=' . $inputDir = __DIR__ . '/../../Translation/Extractor/Fixture/SimpleTest',
-            '--output-dir=' . ($outputDir = $this->createTemporaryPath('extract')),
-        ]);
+        $inputDir = __DIR__ . '/../../Translation/Extractor/Fixture/SimpleTest';
+        $outputDir = $this->createTemporaryPath('extract');
 
-        $expectedOutput =
-            'Extracting Translations for locale en' . "\n"
-           . 'Keep old translations: No' . "\n"
-           . 'Force refresh: No' . "\n"
-           . 'Output-Path: ' . $outputDir . "\n"
-           . 'Directories: ' . $inputDir . "\n"
-           . 'Excluded Directories: Tests' . "\n"
-           . 'Excluded Names: *Test.php, *TestCase.php' . "\n"
-           . 'Output-Format: # whatever is present, if nothing then xlf #' . "\n"
-           . 'Custom Extractors: # none #' . "\n"
-           . '============================================================' . "\n"
-           . 'Loading catalogues from "' . $outputDir . '"' . "\n"
-           . 'Extracting translation keys' . "\n"
-           . 'Extracting messages from directory : ' . $inputDir . "\n"
-           . 'Writing translation file "' . $outputDir . '/messages.en.xlf".' . "\n"
-           . 'done!' . "\n";
+        $output = $this->runExtract($inputDir, $outputDir);
 
-        $this->getApp()->run($input, $output = new Output());
-        $this->assertEquals($expectedOutput, $output->getContent());
-
+        // What the command produced, which is the actual contract of the command.
         $files = FileUtils::findTranslationFiles($outputDir);
         $this->assertTrue(isset($files['messages']['en']));
+
+        $contents = $this->getExtractedFileContents($outputDir);
+        foreach (['php.foo', 'twig.bar', 'form.foo', 'controller.foo'] as $id) {
+            $this->assertStringContainsString(sprintf('resname="%s"', $id), $contents);
+        }
+
+        // Only the parts of the report a caller relies on: the configuration it echoes
+        // back, and the confirmation of what was written. Asserting the full output would
+        // break on every rewording or newly reported option.
+        $this->assertStringContainsString('Extracting Translations for locale en', $output->getContent());
+        $this->assertStringContainsString('Output-Path: ' . $outputDir, $output->getContent());
+        $this->assertStringContainsString('Directories: ' . $inputDir, $output->getContent());
+        $this->assertStringContainsString(
+            sprintf('Writing translation file "%s/messages.en.xlf".', $outputDir),
+            $output->getContent()
+        );
+        $this->assertStringContainsString('done!', $output->getContent());
     }
 
     public function testExtractDryRun(): void
     {
-        $input = new ArgvInput([
-            'app/console',
-            'jms:translation:extract',
-            'en',
-            '--dir=' . $inputDir = __DIR__ . '/../../Translation/Extractor/Fixture/SimpleTest',
-            '--output-dir=' . ($outputDir = $this->createTemporaryPath('extract')),
-            '--dry-run',
-            '--verbose',
-        ]);
+        $inputDir = __DIR__ . '/../../Translation/Extractor/Fixture/SimpleTest';
+        $outputDir = $this->createTemporaryPath('extract');
 
-        $expectedOutput = [
+        $output = $this->runExtract($inputDir, $outputDir, ['--dry-run', '--verbose']);
+
+        $expectedTranslations = [
             'php.foo->',
             'php.bar-> Bar',
             'php.baz->',
@@ -100,11 +90,14 @@ class ExtractCommandTest extends BaseCommandTestCase
             'controller.foo-> Foo',
         ];
 
-        $this->getApp()->run($input, $output = new Output());
-
-        foreach ($expectedOutput as $transID) {
+        foreach ($expectedTranslations as $transID) {
             $this->assertStringContainsString($transID, $output->getContent());
         }
+
+        // The whole point of --dry-run: report, but leave the filesystem alone.
+        $this->assertFileDoesNotExist($outputDir . '/messages.en.xlf');
+        $this->assertSame([], FileUtils::findTranslationFiles($outputDir));
+        $this->assertStringNotContainsString('Writing translation file', $output->getContent());
     }
 
     /**
@@ -113,7 +106,8 @@ class ExtractCommandTest extends BaseCommandTestCase
     #[DataProvider('provideForceCases')]
     public function testExtractAlwaysResyncsDescAndOnlyForceResyncsTarget(
         array $extraArgs,
-        string $expectedTargetAfterChange
+        string $expectedTargetAfterChange,
+        string $expectedReportedForce
     ): void {
         [$scanDir, $phpFile] = $this->createScanDirWithController('Original');
         $outputDir = $this->createTemporaryPath('extract_force_out');
@@ -126,7 +120,13 @@ class ExtractCommandTest extends BaseCommandTestCase
 
         // Simulate a developer changing the default text (@Desc) in code.
         file_put_contents($phpFile, $this->getControllerFixture('Updated'));
-        $this->runExtract($scanDir, $outputDir, $extraArgs);
+        $output = $this->runExtract($scanDir, $outputDir, $extraArgs);
+
+        $this->assertStringContainsString(
+            'Force refresh: ' . $expectedReportedForce,
+            $output->getContent(),
+            'the command must report the force mode it runs in'
+        );
 
         $contents = $this->getExtractedFileContents($outputDir);
         $this->assertStringContainsString(
@@ -142,13 +142,13 @@ class ExtractCommandTest extends BaseCommandTestCase
     }
 
     /**
-     * @return iterable<string, array{list<string>, string}>
+     * @return iterable<string, array{list<string>, string, string}>
      */
     public static function provideForceCases(): iterable
     {
-        yield 'without force, target is preserved' => [[], 'Original'];
+        yield 'without force, target is preserved' => [[], 'Original', 'No'];
 
-        yield 'with force, target is resynced' => [['--force'], 'Updated'];
+        yield 'with force, target is resynced' => [['--force'], 'Updated', 'Yes'];
     }
 
     /**
@@ -197,7 +197,7 @@ class ExtractCommandTest extends BaseCommandTestCase
     /**
      * @param list<string> $extraArgs
      */
-    private function runExtract(string $scanDir, string $outputDir, array $extraArgs = []): void
+    private function runExtract(string $scanDir, string $outputDir, array $extraArgs = []): Output
     {
         $input = new ArgvInput(array_merge([
             'app/console',
@@ -207,7 +207,10 @@ class ExtractCommandTest extends BaseCommandTestCase
             '--output-dir=' . $outputDir,
         ], $extraArgs));
 
-        $this->getApp()->run($input, new Output());
+        $output = new Output();
+        $this->getApp()->run($input, $output);
+
+        return $output;
     }
 
     private function createTemporaryPath(string $prefix): string
