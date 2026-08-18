@@ -38,12 +38,7 @@ class Configuration implements ConfigurationInterface
         $c = $this->container;
 
         $tb = new TreeBuilder('jms_translation');
-        // Keep compatibility with symfony/config < 4.2
-        if (!method_exists($tb, 'getRootNode')) {
-            $rootNode = $tb->root('jms_translation');
-        } else {
-            $rootNode = $tb->getRootNode();
-        }
+        $rootNode = $tb->getRootNode();
 
         $rootNode
             ->fixXmlConfig('config')

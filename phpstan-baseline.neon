@@ -7,18 +7,6 @@ parameters:
 			path: Command/ExtractTranslationCommand.php
 
 		-
-			message: '#^Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\TreeBuilder\<string\>\:\:root\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: DependencyInjection/Configuration.php
-
-		-
-			message: '#^Call to function method_exists\(\) with Symfony\\Component\\Config\\Definition\\Builder\\TreeBuilder\<''array''\> and ''getRootNode'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: DependencyInjection/Configuration.php
-
-		-
 			message: '#^Property JMS\\TranslationBundle\\Model\\Message\:\:\$desc \(string\) on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.property
 			count: 1
@@ -457,12 +445,6 @@ parameters:
 			path: Translation/Extractor/File/ValidationExtractor.php
 
 		-
-			message: '#^Call to function method_exists\(\) with ReflectionProperty and ''isPromoted'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: Translation/Extractor/File/ValidationExtractor.php
-
-		-
 			message: '#^Return type \(void\) of method JMS\\TranslationBundle\\Translation\\Extractor\\File\\ValidationExtractor\:\:afterTraverse\(\) should be compatible with return type \(array\<PhpParser\\Node\>\|null\) of method PhpParser\\NodeVisitor\:\:afterTraverse\(\)$#'
 			identifier: method.childReturnType
 			count: 1
@@ -509,42 +491,6 @@ parameters:
 			identifier: notIdentical.alwaysTrue
 			count: 1
 			path: Translation/Extractor/FileExtractor.php
-
-		-
-			message: '#^Call to function assert\(\) with true will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 2
-			path: Translation/Loader/XliffLoader.php
-
-		-
-			message: '#^Call to method JMS\\TranslationBundle\\Translation\\Loader\\XliffLoader\:\:libxmlDisableEntityLoader\(\) on a separate line has no effect\.$#'
-			identifier: method.resultUnused
-			count: 2
-			path: Translation/Loader/XliffLoader.php
-
-		-
-			message: '#^Comparison operation "\>\=" between int\<80100, 80599\> and 80000 is always true\.$#'
-			identifier: greaterOrEqual.alwaysTrue
-			count: 1
-			path: Translation/Loader/XliffLoader.php
-
-		-
-			message: '#^Instanceof between JMS\\TranslationBundle\\Model\\Message\\XliffMessage and JMS\\TranslationBundle\\Model\\Message\\XliffMessage will always evaluate to true\.$#'
-			identifier: instanceof.alwaysTrue
-			count: 1
-			path: Translation/Loader/XliffLoader.php
-
-		-
-			message: '#^Instanceof between SimpleXMLElement and SimpleXMLElement will always evaluate to true\.$#'
-			identifier: instanceof.alwaysTrue
-			count: 1
-			path: Translation/Loader/XliffLoader.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: Translation/Loader/XliffLoader.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between null and string will always evaluate to true\.$#'

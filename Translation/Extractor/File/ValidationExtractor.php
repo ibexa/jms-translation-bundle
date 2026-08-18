@@ -162,7 +162,7 @@ class ValidationExtractor implements FileVisitorInterface, NodeVisitor
                     if (array_key_exists($propName, $defaultValues) && $defaultValues[$propName] !== $constraint->{$propName}) {
                         $message = new Message($constraint->{$propName}, 'validators');
                         $this->catalogue->add($message);
-                    } elseif (method_exists($property, 'isPromoted') && $property->isPromoted()) {
+                    } elseif ($property->isPromoted()) {
                         foreach ($defaultParameters as $defaultParameter) {
                             if ($defaultParameter->getName() === $propName && $defaultParameter->isDefaultValueAvailable() && $defaultParameter->getDefaultValue() !== $constraint->{$propName}) {
                                 $message = new Message($constraint->{$propName}, 'validators');
