@@ -559,36 +559,6 @@ parameters:
 			path: Translation/Updater.php
 
 		-
-			message: '#^Parameter \#1 \$left of class Twig\\Node\\Expression\\Binary\\EqualBinary constructor expects Twig\\Node\\Expression\\AbstractExpression, Twig\\Node\\Node given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Twig/DefaultApplyingNodeVisitor.php
-
-		-
-			message: '#^Parameter \#1 \$node of class Twig\\Node\\Expression\\FilterExpression constructor expects Twig\\Node\\Expression\\AbstractExpression, Twig\\Node\\Node given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Twig/DefaultApplyingNodeVisitor.php
-
-		-
-			message: '#^Parameter \#2 \$left of class Twig\\Node\\Expression\\Ternary\\ConditionalTernary constructor expects Twig\\Node\\Expression\\AbstractExpression, Twig\\Node\\Node given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Twig/DefaultApplyingNodeVisitor.php
-
-		-
-			message: '#^Parameter \#2 \$right of class Twig\\Node\\Expression\\Binary\\EqualBinary constructor expects Twig\\Node\\Expression\\AbstractExpression, Twig\\Node\\Node given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Twig/DefaultApplyingNodeVisitor.php
-
-		-
-			message: '#^Parameter \#3 \$right of class Twig\\Node\\Expression\\Ternary\\ConditionalTernary constructor expects Twig\\Node\\Expression\\AbstractExpression, Twig\\Node\\Node given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Twig/DefaultApplyingNodeVisitor.php
-
-		-
 			message: '#^Constructor of class JMS\\TranslationBundle\\Twig\\TranslationExtension has an unused parameter \$translator\.$#'
 			identifier: constructor.unusedParameter
 			count: 1
