@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace JMS\TranslationBundle\Translation\Comparison;
 
+use JMS\TranslationBundle\Model\Message;
 use JMS\TranslationBundle\Model\MessageCatalogue;
 
 /**
@@ -56,6 +57,7 @@ class CatalogueComparator
     public function compare(MessageCatalogue $current, MessageCatalogue $new)
     {
         $newMessages = [];
+        $changedMessages = [];
 
         foreach ($new->getDomains() as $name => $domain) {
             if ($this->domains && !isset($this->domains[$name])) {
@@ -68,7 +70,10 @@ class CatalogueComparator
 
             foreach ($domain->all() as $message) {
                 if ($current->has($message)) {
-                    // FIXME: Compare what has changed
+                    $existingMessage = $current->get($message->getId(), $message->getDomain());
+                    if ($this->hasContentChanged($existingMessage, $message)) {
+                        $changedMessages[] = $message;
+                    }
 
                     continue;
                 }
@@ -96,6 +101,37 @@ class CatalogueComparator
             }
         }
 
-        return new ChangeSet($newMessages, $deletedMessages);
+        return new ChangeSet($newMessages, $deletedMessages, $changedMessages);
+    }
+
+    /**
+     * Compares the code-derived content of a message (desc/meaning) between the version
+     * currently on disk and the freshly scanned one. Deliberately ignores localeString,
+     * since that is translator-provided content and is expected to differ until a human
+     * (re)translates it.
+     */
+    private function hasContentChanged(Message $existing, Message $scanned): bool
+    {
+        return $this->valueHasChanged($existing->getDesc(), $scanned->getDesc())
+            || $this->valueHasChanged($existing->getMeaning(), $scanned->getMeaning());
+    }
+
+    /**
+     * Compares a single code-derived value (desc or meaning).
+     *
+     * Only flags a change if both sides actually have a value. If either side is blank,
+     * that's usually just a field that was never filled in (e.g. no @Desc annotation), not
+     * something that got deleted, so we don't want to flag it as changed.
+     */
+    private function valueHasChanged(?string $existing, ?string $scanned): bool
+    {
+        $scanned = null !== $scanned ? trim($scanned) : '';
+        $existing = null !== $existing ? trim($existing) : '';
+
+        if ('' === $scanned || '' === $existing) {
+            return false;
+        }
+
+        return $existing !== $scanned;
     }
 }

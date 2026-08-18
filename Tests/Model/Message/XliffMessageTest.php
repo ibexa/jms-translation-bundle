@@ -25,6 +25,7 @@ use JMS\TranslationBundle\Model\Message;
 use JMS\TranslationBundle\Model\Message\XliffMessage;
 use JMS\TranslationBundle\Model\SourceInterface;
 use JMS\TranslationBundle\Tests\Model\MessageTest;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class XliffMessageTest extends MessageTest
 {
@@ -281,5 +282,75 @@ class XliffMessageTest extends MessageTest
         $this->assertEquals([], $existingMessage4->getSources());
         $this->assertTrue($existingMessage4->isApproved());
         $this->assertEquals(XliffMessage::STATE_TRANSLATED, $existingMessage4->getState());
+    }
+
+    #[DataProvider('provideMergeScannedWritabilityCases')]
+    public function testMergeScannedRespectsWritability(
+        bool $approved,
+        ?string $state,
+        XliffMessage $scannedMessage,
+        bool $force,
+        string $expectedDesc,
+        string $expectedLocaleString
+    ): void {
+        $existingMessage = new XliffMessage('foo');
+        $existingMessage->setDesc('old_desc');
+        $existingMessage->setLocaleString('translated');
+        $existingMessage->setApproved($approved);
+        $existingMessage->setState($state);
+
+        $existingMessage->mergeScanned($scannedMessage, $force);
+
+        $this->assertEquals($expectedDesc, $existingMessage->getDesc());
+        $this->assertEquals($expectedLocaleString, $existingMessage->getLocaleString());
+    }
+
+    /**
+     * @return iterable<string, array{bool, ?string, XliffMessage, bool, string, string}>
+     */
+    public static function provideMergeScannedWritabilityCases(): iterable
+    {
+        $scannedWithDesc = new XliffMessage('foo');
+        $scannedWithDesc->setDesc('new_desc');
+
+        $scannedWithDescAndDefault = new XliffMessage('foo');
+        $scannedWithDescAndDefault->setDesc('new_desc');
+        $scannedWithDescAndDefault->setLocaleString('scanned_default');
+
+        yield 'writable, scan resyncs desc' => [
+            false,
+            XliffMessage::STATE_NONE,
+            $scannedWithDesc,
+            false,
+            'new_desc',
+            'translated',
+        ];
+
+        yield 'writable, scan without desc keeps existing one' => [
+            false,
+            XliffMessage::STATE_NONE,
+            new XliffMessage('foo'),
+            false,
+            'old_desc',
+            'translated',
+        ];
+
+        yield 'writable, force overwrites locale string' => [
+            false,
+            XliffMessage::STATE_NONE,
+            $scannedWithDescAndDefault,
+            true,
+            'new_desc',
+            'scanned_default',
+        ];
+
+        yield 'not writable, force changes nothing' => [
+            true,
+            XliffMessage::STATE_TRANSLATED,
+            $scannedWithDescAndDefault,
+            true,
+            'old_desc',
+            'translated',
+        ];
     }
 }

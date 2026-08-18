@@ -22,6 +22,7 @@ namespace JMS\TranslationBundle\Twig;
 
 use JMS\TranslationBundle\Exception\RuntimeException;
 use Twig\Environment;
+use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\Binary\EqualBinary;
 use Twig\Node\Expression\FilterExpression;
@@ -70,10 +71,12 @@ class DefaultApplyingNodeVisitor implements NodeVisitorInterface
             }
 
             $wrappingNode = $node->getNode('node');
+            \assert($wrappingNode instanceof AbstractExpression);
 
             $testNode     = clone $wrappingNode;
             $arguments    = iterator_to_array($node->getNode('arguments'));
             $defaultNode  = $arguments[0];
+            \assert($defaultNode instanceof AbstractExpression);
 
             $wrappingNodeArguments = iterator_to_array($wrappingNode->getNode('arguments'));
 
@@ -94,15 +97,18 @@ class DefaultApplyingNodeVisitor implements NodeVisitorInterface
 
                 // wrap the default node in a |replace filter
                 $defaultNode = new FilterExpression(
-                    $arguments[0],
+                    $defaultNode,
                     $replaceFilter,
                     new Nodes([$wrappingNodeArguments[0]]),
                     $lineno
                 );
             }
 
+            $transNodeInner = $transNode->getNode('node');
+            \assert($transNodeInner instanceof AbstractExpression);
+
             $condition = new ConditionalTernary(
-                new EqualBinary($testNode, $transNode->getNode('node'), $wrappingNode->getTemplateLine()),
+                new EqualBinary($testNode, $transNodeInner, $wrappingNode->getTemplateLine()),
                 $defaultNode,
                 clone $wrappingNode,
                 $wrappingNode->getTemplateLine()

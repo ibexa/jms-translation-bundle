@@ -252,8 +252,19 @@ class XliffMessage extends Message
 
     /**
      * {@inheritdoc}
+     *
+     * If the scan found a new desc/meaning, it replaces the old one. If the scan found nothing
+     * (blank), the old desc/meaning is kept as-is.
+     *
+     * The translation itself (localeString) is only replaced when it's currently empty, unless
+     * $force is true, in which case it's always replaced with the scanned value.
+     *
+     * None of this applies to messages that aren't writable (approved, or already translated in
+     * XLIFF) - those are left untouched no matter what $force is.
+     *
+     * @param bool $force overwrite an existing, non-empty localeString with the scanned value
      */
-    public function mergeScanned(Message $message)
+    public function mergeScanned(Message $message, bool $force = false)
     {
         if ($this->getId() !== $message->getId()) {
             throw new RuntimeException(sprintf('You can only merge messages with the same id. Expected id "%s", but got "%s".', $this->getId(), $message->getId()));
@@ -263,15 +274,15 @@ class XliffMessage extends Message
 
         $oldDesc = $this->getDesc();
         if ($this->isWritable()) {
-            if (null === $this->getMeaning()) {
+            if (!self::isBlank($message->getMeaning())) {
                 $this->setMeaning($message->getMeaning());
             }
 
-            if (null === $this->getDesc()) {
+            if (!self::isBlank($message->getDesc())) {
                 $this->setDesc($message->getDesc());
             }
 
-            if (!$this->getLocaleString()) {
+            if ($force || !$this->getLocaleString()) {
                 $this->setLocaleString($message->getLocaleString());
             }
         }

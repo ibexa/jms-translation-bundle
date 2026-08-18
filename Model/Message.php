@@ -353,21 +353,27 @@ class Message
      * The result of both methods is the same, except that the result will end up in the existing message,
      * instead of the scanned message, so extra information read from the existing message is not discarded.
      *
+     * If the scan found a new desc/meaning, it replaces the old one. If the scan found nothing
+     * (blank), the old desc/meaning is kept as-is.
+     *
+     * The translation itself (localeString) is only replaced when it's currently empty, unless
+     * $force is true, in which case it's always replaced with the scanned value.
+     *
      * @author Dieter Peeters <peetersdiet@gmail.com>
      *
-     * @param Message $message
+     * @param bool $force overwrite an existing, non-empty localeString with the scanned value
      */
-    public function mergeScanned(Message $message)
+    public function mergeScanned(Message $message, bool $force = false)
     {
         if ($this->id !== $message->getId()) {
             throw new RuntimeException(sprintf('You can only merge messages with the same id. Expected id "%s", but got "%s".', $this->id, $message->getId()));
         }
 
-        if (null === $this->getMeaning()) {
+        if (!self::isBlank($message->getMeaning())) {
             $this->meaning = $message->getMeaning();
         }
 
-        if (null === $this->getDesc()) {
+        if (!self::isBlank($message->getDesc())) {
             $this->desc = $message->getDesc();
         }
 
@@ -376,9 +382,21 @@ class Message
             $this->addSource($source);
         }
 
-        if (!$this->getLocaleString()) {
+        if ($force || !$this->getLocaleString()) {
             $this->localeString = $message->getLocaleString();
         }
+    }
+
+    /**
+     * A code-derived value counts as missing when it is null or holds nothing but whitespace,
+     * matching how {@link \JMS\TranslationBundle\Translation\Comparison\CatalogueComparator}
+     * decides whether desc/meaning has drifted.
+     *
+     * @param string|null $value
+     */
+    protected static function isBlank($value): bool
+    {
+        return null === $value || '' === trim($value);
     }
 
     /**

@@ -21,10 +21,25 @@ declare(strict_types=1);
 namespace JMS\TranslationBundle\Tests\Functional\Command;
 
 use JMS\TranslationBundle\Util\FileUtils;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Input\ArgvInput;
 
 class ExtractCommandTest extends BaseCommandTestCase
 {
+    /** @var list<string> */
+    private array $temporaryPaths = [];
+
+    protected function tearDown(): void
+    {
+        foreach ($this->temporaryPaths as $path) {
+            $this->removeRecursively($path);
+        }
+
+        $this->temporaryPaths = [];
+
+        parent::tearDown();
+    }
+
     public function testExtract(): void
     {
         $input = new ArgvInput([
@@ -32,12 +47,13 @@ class ExtractCommandTest extends BaseCommandTestCase
             'jms:translation:extract',
             'en',
             '--dir=' . $inputDir = __DIR__ . '/../../Translation/Extractor/Fixture/SimpleTest',
-            '--output-dir=' . ($outputDir = sys_get_temp_dir() . '/' . uniqid('extract')),
+            '--output-dir=' . ($outputDir = $this->createTemporaryPath('extract')),
         ]);
 
         $expectedOutput =
             'Extracting Translations for locale en' . "\n"
            . 'Keep old translations: No' . "\n"
+           . 'Force refresh: No' . "\n"
            . 'Output-Path: ' . $outputDir . "\n"
            . 'Directories: ' . $inputDir . "\n"
            . 'Excluded Directories: Tests' . "\n"
@@ -65,7 +81,7 @@ class ExtractCommandTest extends BaseCommandTestCase
             'jms:translation:extract',
             'en',
             '--dir=' . $inputDir = __DIR__ . '/../../Translation/Extractor/Fixture/SimpleTest',
-            '--output-dir=' . ($outputDir = sys_get_temp_dir() . '/' . uniqid('extract')),
+            '--output-dir=' . ($outputDir = $this->createTemporaryPath('extract')),
             '--dry-run',
             '--verbose',
         ]);
@@ -89,5 +105,139 @@ class ExtractCommandTest extends BaseCommandTestCase
         foreach ($expectedOutput as $transID) {
             $this->assertStringContainsString($transID, $output->getContent());
         }
+    }
+
+    /**
+     * @param list<string> $extraArgs
+     */
+    #[DataProvider('provideForceCases')]
+    public function testExtractAlwaysResyncsDescAndOnlyForceResyncsTarget(
+        array $extraArgs,
+        string $expectedTargetAfterChange
+    ): void {
+        [$scanDir, $phpFile] = $this->createScanDirWithController('Original');
+        $outputDir = $this->createTemporaryPath('extract_force_out');
+
+        $this->runExtract($scanDir, $outputDir);
+
+        $contents = $this->getExtractedFileContents($outputDir);
+        $this->assertStringContainsString('<source>Original</source>', $contents);
+        $this->assertMatchesRegularExpression('/<target[^>]*>Original<\/target>/', $contents);
+
+        // Simulate a developer changing the default text (@Desc) in code.
+        file_put_contents($phpFile, $this->getControllerFixture('Updated'));
+        $this->runExtract($scanDir, $outputDir, $extraArgs);
+
+        $contents = $this->getExtractedFileContents($outputDir);
+        $this->assertStringContainsString(
+            '<source>Updated</source>',
+            $contents,
+            'desc must always be resynced from the scan, regardless of --force'
+        );
+        $this->assertMatchesRegularExpression(
+            sprintf('/<target[^>]*>%s<\/target>/', $expectedTargetAfterChange),
+            $contents,
+            sprintf('target must be "%s" after re-extracting', $expectedTargetAfterChange)
+        );
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, string}>
+     */
+    public static function provideForceCases(): iterable
+    {
+        yield 'without force, target is preserved' => [[], 'Original'];
+
+        yield 'with force, target is resynced' => [['--force'], 'Updated'];
+    }
+
+    /**
+     * @return array{string, string}
+     */
+    private function createScanDirWithController(string $desc): array
+    {
+        $scanDir = $this->createTemporaryPath('extract_force_src');
+        mkdir($scanDir, 0777, true);
+
+        $phpFile = $scanDir . '/Controller.php';
+        file_put_contents($phpFile, $this->getControllerFixture($desc));
+
+        return [$scanDir, $phpFile];
+    }
+
+    private function getExtractedFileContents(string $outputDir): string
+    {
+        $file = $outputDir . '/messages.en.xlf';
+        $this->assertFileExists($file);
+
+        $contents = file_get_contents($file);
+        $this->assertNotFalse($contents);
+
+        return $contents;
+    }
+
+    private function getControllerFixture(string $desc): string
+    {
+        return <<<PHP
+        <?php
+
+        class ForceTestController
+        {
+            private \$translator;
+
+            public function indexAction()
+            {
+                return /** @Desc("{$desc}") */ \$this->translator->trans('force.foo');
+            }
+        }
+
+        PHP;
+    }
+
+    /**
+     * @param list<string> $extraArgs
+     */
+    private function runExtract(string $scanDir, string $outputDir, array $extraArgs = []): void
+    {
+        $input = new ArgvInput(array_merge([
+            'app/console',
+            'jms:translation:extract',
+            'en',
+            '--dir=' . $scanDir,
+            '--output-dir=' . $outputDir,
+        ], $extraArgs));
+
+        $this->getApp()->run($input, new Output());
+    }
+
+    private function createTemporaryPath(string $prefix): string
+    {
+        $path = sys_get_temp_dir() . '/' . uniqid($prefix);
+        $this->temporaryPaths[] = $path;
+
+        return $path;
+    }
+
+    private function removeRecursively(string $path): void
+    {
+        if (!file_exists($path)) {
+            return;
+        }
+
+        if (!is_dir($path)) {
+            unlink($path);
+
+            return;
+        }
+
+        foreach (scandir($path) ?: [] as $entry) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+
+            $this->removeRecursively($path . '/' . $entry);
+        }
+
+        rmdir($path);
     }
 }

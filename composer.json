@@ -40,16 +40,17 @@
         "doctrine/coding-standard": "^9.0",
         "matthiasnoback/symfony-dependency-injection-test": "^6.0",
         "nyholm/nsa": "^1.0.1",
+        "phpstan/phpstan": "^2.0",
         "phpunit/phpunit": "^11.5",
-        "symfony/phpunit-bridge": "^7.2",
         "symfony/asset": "^5.4 || ^6.4 || ^7.1",
         "symfony/browser-kit": "^5.4 || ^6.4 || ^7.1",
         "symfony/css-selector": "^5.4 || ^6.4 || ^7.1",
         "symfony/filesystem": "^5.4 || ^6.4 || ^7.1",
         "symfony/form": "^5.4 || ^6.4 || ^7.1",
-        "symfony/security-csrf": "^5.4 || ^6.4 || ^7.1",
+        "symfony/phpunit-bridge": "^7.2",
         "symfony/property-access": "^5.4 || ^6.4 || ^7.1",
         "symfony/routing": "^5.4 || ^6.4 || ^7.1",
+        "symfony/security-csrf": "^5.4 || ^6.4 || ^7.1",
         "symfony/twig-bundle": "^5.4 || ^6.4 || ^7.1"
     },
     "config": {
@@ -75,6 +76,7 @@
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
-        }
+        },
+        "phpstan": "phpstan analyse -c phpstan.neon"
     }
 }

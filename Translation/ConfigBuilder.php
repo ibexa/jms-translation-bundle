@@ -87,6 +87,8 @@ final class ConfigBuilder
      */
     private $loadResources = [];
 
+    private bool $force = false;
+
     /**
      * @param Config $config
      *
@@ -109,6 +111,7 @@ final class ConfigBuilder
         $builder->setExcludedNames($config->getExcludedNames());
         $builder->setEnabledExtractors($config->getEnabledExtractors());
         $builder->setLoadResources($config->getLoadResources());
+        $builder->setForce($config->isForced());
 
         return $builder;
     }
@@ -345,8 +348,20 @@ final class ConfigBuilder
             $this->excludedNames,
             $this->enabledExtractors,
             $this->keepOldTranslations,
-            $this->loadResources
+            $this->loadResources,
+            $this->force
         );
+    }
+
+    /**
+     * Force-refresh the translation (localeString) of existing, writable messages from the scan,
+     * instead of only filling it in when currently empty.
+     */
+    public function setForce(bool $force): self
+    {
+        $this->force = $force;
+
+        return $this;
     }
 
     /**
