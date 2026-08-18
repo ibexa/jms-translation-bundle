@@ -274,11 +274,11 @@ class XliffMessage extends Message
 
         $oldDesc = $this->getDesc();
         if ($this->isWritable()) {
-            if ($message->getMeaning()) {
+            if (!self::isBlank($message->getMeaning())) {
                 $this->setMeaning($message->getMeaning());
             }
 
-            if ($message->getDesc()) {
+            if (!self::isBlank($message->getDesc())) {
                 $this->setDesc($message->getDesc());
             }
 

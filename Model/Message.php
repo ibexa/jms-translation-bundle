@@ -369,11 +369,11 @@ class Message
             throw new RuntimeException(sprintf('You can only merge messages with the same id. Expected id "%s", but got "%s".', $this->id, $message->getId()));
         }
 
-        if ($message->getMeaning()) {
+        if (!self::isBlank($message->getMeaning())) {
             $this->meaning = $message->getMeaning();
         }
 
-        if ($message->getDesc()) {
+        if (!self::isBlank($message->getDesc())) {
             $this->desc = $message->getDesc();
         }
 
@@ -385,6 +385,18 @@ class Message
         if ($force || !$this->getLocaleString()) {
             $this->localeString = $message->getLocaleString();
         }
+    }
+
+    /**
+     * A code-derived value counts as missing when it is null or holds nothing but whitespace,
+     * matching how {@link \JMS\TranslationBundle\Translation\Comparison\CatalogueComparator}
+     * decides whether desc/meaning has drifted.
+     *
+     * @param string|null $value
+     */
+    protected static function isBlank($value): bool
+    {
+        return null === $value || '' === trim($value);
     }
 
     /**

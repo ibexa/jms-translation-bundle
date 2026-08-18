@@ -207,6 +207,30 @@ class MessageTest extends TestCase
             'translated',
         ];
 
+        $scannedWithFalsyText = new Message('foo');
+        $scannedWithFalsyText->setDesc('0');
+        $scannedWithFalsyText->setMeaning('0');
+
+        yield 'scan resyncs desc and meaning that are falsy strings' => [
+            $scannedWithFalsyText,
+            false,
+            '0',
+            '0',
+            'translated',
+        ];
+
+        $scannedWithBlankText = new Message('foo');
+        $scannedWithBlankText->setDesc('   ');
+        $scannedWithBlankText->setMeaning("\n");
+
+        yield 'scan with whitespace-only desc and meaning keeps existing ones' => [
+            $scannedWithBlankText,
+            false,
+            'old_desc',
+            'old_meaning',
+            'translated',
+        ];
+
         $scannedWithDefault = new Message('foo');
         $scannedWithDefault->setLocaleString('scanned_default');
 
