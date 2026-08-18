@@ -571,7 +571,7 @@ parameters:
 			path: Twig/DefaultApplyingNodeVisitor.php
 
 		-
-			message: '#^Parameter \#2 \$expr2 of class Twig\\Node\\Expression\\ConditionalExpression constructor expects Twig\\Node\\Expression\\AbstractExpression, Twig\\Node\\Node given\.$#'
+			message: '#^Parameter \#2 \$left of class Twig\\Node\\Expression\\Ternary\\ConditionalTernary constructor expects Twig\\Node\\Expression\\AbstractExpression, Twig\\Node\\Node given\.$#'
 			identifier: argument.type
 			count: 1
 			path: Twig/DefaultApplyingNodeVisitor.php
@@ -583,7 +583,7 @@ parameters:
 			path: Twig/DefaultApplyingNodeVisitor.php
 
 		-
-			message: '#^Parameter \#3 \$expr3 of class Twig\\Node\\Expression\\ConditionalExpression constructor expects Twig\\Node\\Expression\\AbstractExpression, Twig\\Node\\Node given\.$#'
+			message: '#^Parameter \#3 \$right of class Twig\\Node\\Expression\\Ternary\\ConditionalTernary constructor expects Twig\\Node\\Expression\\AbstractExpression, Twig\\Node\\Node given\.$#'
 			identifier: argument.type
 			count: 1
 			path: Twig/DefaultApplyingNodeVisitor.php

@@ -77,9 +77,7 @@ class DefaultApplyingNodeVisitorTest extends BaseTwigTestCase
         $found = $node instanceof ConditionalTernary ? [$node] : [];
 
         foreach ($node as $child) {
-            if ($child instanceof Node) {
-                $found = array_merge($found, $this->findConditionalTernaries($child));
-            }
+            $found = array_merge($found, $this->findConditionalTernaries($child));
         }
 
         return $found;
