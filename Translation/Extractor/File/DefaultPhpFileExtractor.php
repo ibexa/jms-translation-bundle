@@ -105,7 +105,7 @@ class DefaultPhpFileExtractor implements LoggerAwareInterface, FileVisitorInterf
     /**
      * @param Node $node
      *
-     * @return void
+     * @return int|Node|Node[]|null
      */
     public function enterNode(Node $node)
     {
@@ -119,7 +119,7 @@ class DefaultPhpFileExtractor implements LoggerAwareInterface, FileVisitorInterf
         ) {
             $this->previousNode = $node;
 
-            return;
+            return null;
         }
 
         $ignore = false;
@@ -141,7 +141,7 @@ class DefaultPhpFileExtractor implements LoggerAwareInterface, FileVisitorInterf
 
         if (!$node->args[0]->value instanceof String_) {
             if ($ignore) {
-                return;
+                return null;
             }
 
             $message = sprintf('Can only extract the translation id from a scalar string, but got "%s". Please refactor your code to make it extractable, or add the doc comment /** @Ignore */ to this code element (in %s on line %d).', get_class($node->args[0]->value), $this->file, $node->args[0]->value->getLine());
@@ -149,7 +149,7 @@ class DefaultPhpFileExtractor implements LoggerAwareInterface, FileVisitorInterf
             if ($this->logger) {
                 $this->logger->error($message);
 
-                return;
+                return null;
             }
 
             throw new RuntimeException($message);
@@ -182,7 +182,7 @@ class DefaultPhpFileExtractor implements LoggerAwareInterface, FileVisitorInterf
                 $domain = $domainArg->value->value;
             } else {
                 if ($ignore) {
-                    return;
+                    return null;
                 }
 
                 $message = sprintf('Can only extract the translation domain from a scalar string, but got "%s". Please refactor your code to make it extractable, or add the doc comment /** @Ignore */ to this code element (in %s on line %d).', get_class($domainArg->value), $this->file, $domainArg->value->getLine());
@@ -190,7 +190,7 @@ class DefaultPhpFileExtractor implements LoggerAwareInterface, FileVisitorInterf
                 if ($this->logger) {
                     $this->logger->error($message);
 
-                    return;
+                    return null;
                 }
 
                 throw new RuntimeException($message);
@@ -204,6 +204,8 @@ class DefaultPhpFileExtractor implements LoggerAwareInterface, FileVisitorInterf
         $message->setMeaning($meaning);
         $message->addSource($this->fileSourceFactory->create($this->file, $node->getLine()));
         $this->catalogue->add($message);
+
+        return null;
     }
 
     /**
@@ -221,28 +223,31 @@ class DefaultPhpFileExtractor implements LoggerAwareInterface, FileVisitorInterf
     /**
      * @param array $nodes
      *
-     * @return void
+     * @return Node[]|null
      */
     public function beforeTraverse(array $nodes)
     {
+        return null;
     }
 
     /**
      * @param Node $node
      *
-     * @return void
+     * @return int|Node|Node[]|null
      */
     public function leaveNode(Node $node)
     {
+        return null;
     }
 
     /**
      * @param array $nodes
      *
-     * @return void
+     * @return Node[]|null
      */
     public function afterTraverse(array $nodes)
     {
+        return null;
     }
 
     public function visitFile(\SplFileInfo $file, MessageCatalogue $catalogue)

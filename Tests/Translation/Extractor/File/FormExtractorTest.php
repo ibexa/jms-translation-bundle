@@ -145,7 +145,7 @@ class FormExtractorTest extends PhpFileExtractorTestCase
         $message->addSource($fileSourceFactory->create($fixtureSplInfo, 67));
         $expected->add($message);
 
-        $message = new Message(0);
+        $message = new Message('0');
         $message->addSource($fileSourceFactory->create($fixtureSplInfo, -1));
         $expected->add($message);
 

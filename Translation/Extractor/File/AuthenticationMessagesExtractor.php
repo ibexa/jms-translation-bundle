@@ -110,7 +110,7 @@ class AuthenticationMessagesExtractor implements LoggerAwareInterface, FileVisit
     /**
      * @param Node $node
      *
-     * @return void
+     * @return int|Node|Node[]|null
      */
     public function enterNode(Node $node)
     {
@@ -119,14 +119,14 @@ class AuthenticationMessagesExtractor implements LoggerAwareInterface, FileVisit
                 $this->namespace = property_exists($node->name, 'parts') ? implode('\\', $node->name->parts) : $node->name->name;
             }
 
-            return;
+            return null;
         }
 
         if ($node instanceof Node\Stmt\Class_) {
             $name = '' === $this->namespace ? (string) $node->name : $this->namespace . '\\' . $node->name;
 
             if (!class_exists($name)) {
-                return;
+                return null;
             }
             $ref = new \ReflectionClass($name);
 
@@ -134,19 +134,19 @@ class AuthenticationMessagesExtractor implements LoggerAwareInterface, FileVisit
                 !$ref->isSubclassOf(AuthenticationException::class)
                 && $ref->name !== 'Symfony\Component\Security\Core\Exception\AuthenticationException'
             ) {
-                return;
+                return null;
             }
 
             if (!$ref->hasMethod('getMessageKey')) {
-                return;
+                return null;
             }
             $this->inAuthException = true;
 
-            return;
+            return null;
         }
 
         if (!$this->inAuthException) {
-            return;
+            return null;
         }
 
         if ($node instanceof Node\Stmt\ClassMethod) {
@@ -154,15 +154,15 @@ class AuthenticationMessagesExtractor implements LoggerAwareInterface, FileVisit
                 $this->inGetMessageKey = true;
             }
 
-            return;
+            return null;
         }
 
         if (!$this->inGetMessageKey) {
-            return;
+            return null;
         }
 
         if (!$node instanceof Node\Stmt\Return_) {
-            return;
+            return null;
         }
 
         $ignore = false;
@@ -181,14 +181,14 @@ class AuthenticationMessagesExtractor implements LoggerAwareInterface, FileVisit
 
         if (!$node->expr instanceof Node\Scalar\String_) {
             if ($ignore) {
-                return;
+                return null;
             }
 
             $message = sprintf('Could not extract id from return value, expected scalar string but got %s (in %s on line %d).', get_class($node->expr), $this->file, $node->expr->getLine());
             if ($this->logger) {
                 $this->logger->error($message);
 
-                return;
+                return null;
             }
 
             throw new RuntimeException($message);
@@ -200,6 +200,8 @@ class AuthenticationMessagesExtractor implements LoggerAwareInterface, FileVisit
             ->addSource($this->fileSourceFactory->create($this->file, $node->expr->getLine()));
 
         $this->catalogue->add($message);
+
+        return null;
     }
 
     /**
@@ -225,32 +227,36 @@ class AuthenticationMessagesExtractor implements LoggerAwareInterface, FileVisit
         if ($node instanceof Node\Stmt\Class_) {
             $this->inAuthException = false;
 
-            return;
+            return null;
         }
 
         if ($node instanceof Node\Stmt\ClassMethod) {
             $this->inGetMessageKey = false;
 
-            return;
+            return null;
         }
+
+        return null;
     }
 
     /**
      * @param array $nodes
      *
-     * @return Node[]|void|null
+     * @return Node[]|null
      */
     public function beforeTraverse(array $nodes)
     {
+        return null;
     }
 
     /**
      * @param array $nodes
      *
-     * @return Node[]|void|null
+     * @return Node[]|null
      */
     public function afterTraverse(array $nodes)
     {
+        return null;
     }
 
     public function visitFile(\SplFileInfo $file, MessageCatalogue $catalogue)

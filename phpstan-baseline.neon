@@ -7,18 +7,6 @@ parameters:
 			path: Command/ExtractTranslationCommand.php
 
 		-
-			message: '#^Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\TreeBuilder\<string\>\:\:root\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: DependencyInjection/Configuration.php
-
-		-
-			message: '#^Call to function method_exists\(\) with Symfony\\Component\\Config\\Definition\\Builder\\TreeBuilder\<''array''\> and ''getRootNode'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: DependencyInjection/Configuration.php
-
-		-
 			message: '#^Property JMS\\TranslationBundle\\Model\\Message\:\:\$desc \(string\) on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.property
 			count: 1
@@ -55,12 +43,6 @@ parameters:
 			path: Model/Message/XliffMessage.php
 
 		-
-			message: '#^Variable \$from in isset\(\) always exists and is always null\.$#'
-			identifier: isset.variable
-			count: 1
-			path: Model/Message/XliffMessage.php
-
-		-
 			message: '#^Class JMS\\TranslationBundle\\Model\\MessageCollection does not have a constructor and must be instantiated without any parameters\.$#'
 			identifier: new.noConstructor
 			count: 1
@@ -85,160 +67,10 @@ parameters:
 			path: Tests/Functional/BaseTestCase.php
 
 		-
-			message: '#^Parameter \#2 \$from of method JMS\\TranslationBundle\\Model\\Message\\XliffMessage\:\:addNote\(\) expects null, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Tests/Model/Message/XliffMessageTest.php
-
-		-
 			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNull\(\) with string will always evaluate to false\.$#'
 			identifier: method.impossibleType
 			count: 2
 			path: Tests/Model/MessageTest.php
-
-		-
-			message: '#^Parameter \$session of method JMS\\TranslationBundle\\Tests\\Translation\\Extractor\\File\\Fixture\\Controller\:\:__construct\(\) has invalid type Symfony\\Component\\HttpFoundation\\Session\.$#'
-			identifier: class.notFound
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/Controller.php
-
-		-
-			message: '#^Parameter \$translator of method JMS\\TranslationBundle\\Tests\\Translation\\Extractor\\File\\Fixture\\Controller\:\:__construct\(\) has invalid type Symfony\\Component\\Translation\\TranslatorInterface\.$#'
-			identifier: class.notFound
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/Controller.php
-
-		-
-			message: '#^Undefined variable\: \$arr$#'
-			identifier: variable.undefined
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/Controller.php
-
-		-
-			message: '#^Undefined variable\: \$baz$#'
-			identifier: variable.undefined
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/Controller.php
-
-		-
-			message: '#^Undefined variable\: \$foo$#'
-			identifier: variable.undefined
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/Controller.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:add\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 2
-			path: Tests/Translation/Extractor/File/Fixture/MyAttrArrayType.php
-
-		-
-			message: '#^Property JMS\\TranslationBundle\\Tests\\Translation\\Extractor\\File\\Fixture\\MyAuthException\:\:\$foo is never written, only read\.$#'
-			identifier: property.onlyRead
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/MyAuthException.php
-
-		-
-			message: '#^Undefined variable\: \$foo$#'
-			identifier: variable.undefined
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/MyAuthException.php
-
-		-
-			message: '#^Call to method getData\(\) on an unknown class Symfony\\Component\\Form\\Event\\DataEvent\.$#'
-			identifier: class.notFound
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/MyFormSubscriber.php
-
-		-
-			message: '#^Call to method getForm\(\) on an unknown class Symfony\\Component\\Form\\Event\\DataEvent\.$#'
-			identifier: class.notFound
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/MyFormSubscriber.php
-
-		-
-			message: '#^Parameter \$event of method JMS\\TranslationBundle\\Tests\\Translation\\Extractor\\File\\Fixture\\MyFormSubscriber\:\:preSetData\(\) has invalid type Symfony\\Component\\Form\\Event\\DataEvent\.$#'
-			identifier: class.notFound
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/MyFormSubscriber.php
-
-		-
-			message: '#^Instantiated class JMS\\TranslationBundle\\Tests\\Translation\\Extractor\\File\\Fixture\\Length not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/MyFormType.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:add\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 10
-			path: Tests/Translation/Extractor/File/Fixture/MyFormType.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:create\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Tests/Translation/Extractor/File/Fixture/MyFormType.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:add\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 3
-			path: Tests/Translation/Extractor/File/Fixture/MyFormTypeWithDefaultDomain.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:add\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 3
-			path: Tests/Translation/Extractor/File/Fixture/MyFormTypeWithDefaultDomainSetDefault.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:add\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 4
-			path: Tests/Translation/Extractor/File/Fixture/MyFormTypeWithInterface.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:add\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 2
-			path: Tests/Translation/Extractor/File/Fixture/MyFormTypeWithSubscriberAndListener.php
-
-		-
-			message: '#^Parameter \#2 \$type of method Symfony\\Component\\Form\\FormBuilderInterface\:\:add\(\) expects class\-string\<Symfony\\Component\\Form\\FormTypeInterface\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 4
-			path: Tests/Translation/Extractor/File/Fixture/MyPlaceholderFormType.php
-
-		-
-			message: '#^Variable \$view might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
-			path: Tests/Translation/Extractor/File/Fixture/template.html.php
-
-		-
-			message: '#^Parameter \#1 \$id of class JMS\\TranslationBundle\\Model\\Message constructor expects string, int given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Tests/Translation/Extractor/File/FormExtractorTest.php
-
-		-
-			message: '#^Property JMS\\TranslationBundle\\Tests\\Translation\\Extractor\\Fixture\\SimpleTest\\Controller\\DefaultController\:\:\$translator is never written, only read\.$#'
-			identifier: property.onlyRead
-			count: 1
-			path: Tests/Translation/Extractor/Fixture/SimpleTest/Controller/DefaultController.php
-
-		-
-			message: '#^Property GlobalNamespace\:\:\$translator is never written, only read\.$#'
-			identifier: property.onlyRead
-			count: 1
-			path: Tests/Translation/Extractor/Fixture/SimpleTest/GlobalNamespace.php
-
-		-
-			message: '#^Variable \$view might not be defined\.$#'
-			identifier: variable.undefined
-			count: 4
-			path: Tests/Translation/Extractor/Fixture/SimpleTest/Resources/views/php_template.html.php
 
 		-
 			message: '#^Method JMS\\TranslationBundle\\Tests\\Util\\FileUtilsTest\:\:__construct\(\) overrides @final method PHPUnit\\Framework\\TestCase\:\:__construct\(\)\.$#'
@@ -255,12 +87,6 @@ parameters:
 		-
 			message: '#^If condition is always true\.$#'
 			identifier: if.alwaysTrue
-			count: 1
-			path: Translation/Extractor/File/AuthenticationMessagesExtractor.php
-
-		-
-			message: '#^Return type \(void\) of method JMS\\TranslationBundle\\Translation\\Extractor\\File\\AuthenticationMessagesExtractor\:\:enterNode\(\) should be compatible with return type \(array\<PhpParser\\Node\>\|int\|PhpParser\\Node\|null\) of method PhpParser\\NodeVisitor\:\:enterNode\(\)$#'
-			identifier: method.childReturnType
 			count: 1
 			path: Translation/Extractor/File/AuthenticationMessagesExtractor.php
 
@@ -291,30 +117,6 @@ parameters:
 		-
 			message: '#^Instanceof between string and PhpParser\\Comment\\Doc will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
-			count: 1
-			path: Translation/Extractor/File/DefaultPhpFileExtractor.php
-
-		-
-			message: '#^Return type \(void\) of method JMS\\TranslationBundle\\Translation\\Extractor\\File\\DefaultPhpFileExtractor\:\:afterTraverse\(\) should be compatible with return type \(array\<PhpParser\\Node\>\|null\) of method PhpParser\\NodeVisitor\:\:afterTraverse\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: Translation/Extractor/File/DefaultPhpFileExtractor.php
-
-		-
-			message: '#^Return type \(void\) of method JMS\\TranslationBundle\\Translation\\Extractor\\File\\DefaultPhpFileExtractor\:\:beforeTraverse\(\) should be compatible with return type \(array\<PhpParser\\Node\>\|null\) of method PhpParser\\NodeVisitor\:\:beforeTraverse\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: Translation/Extractor/File/DefaultPhpFileExtractor.php
-
-		-
-			message: '#^Return type \(void\) of method JMS\\TranslationBundle\\Translation\\Extractor\\File\\DefaultPhpFileExtractor\:\:enterNode\(\) should be compatible with return type \(array\<PhpParser\\Node\>\|int\|PhpParser\\Node\|null\) of method PhpParser\\NodeVisitor\:\:enterNode\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: Translation/Extractor/File/DefaultPhpFileExtractor.php
-
-		-
-			message: '#^Return type \(void\) of method JMS\\TranslationBundle\\Translation\\Extractor\\File\\DefaultPhpFileExtractor\:\:leaveNode\(\) should be compatible with return type \(array\<PhpParser\\Node\>\|int\|PhpParser\\Node\|null\) of method PhpParser\\NodeVisitor\:\:leaveNode\(\)$#'
-			identifier: method.childReturnType
 			count: 1
 			path: Translation/Extractor/File/DefaultPhpFileExtractor.php
 
@@ -379,24 +181,6 @@ parameters:
 			path: Translation/Extractor/File/FormExtractor.php
 
 		-
-			message: '#^Method JMS\\TranslationBundle\\Translation\\Extractor\\File\\FormExtractor\:\:enterNode\(\) should return null but empty return statement found\.$#'
-			identifier: return.empty
-			count: 2
-			path: Translation/Extractor/File/FormExtractor.php
-
-		-
-			message: '#^Method JMS\\TranslationBundle\\Translation\\Extractor\\File\\FormExtractor\:\:enterNode\(\) should return null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 2
-			path: Translation/Extractor/File/FormExtractor.php
-
-		-
-			message: '#^Parameter \#2 \$domain of method JMS\\TranslationBundle\\Translation\\Extractor\\File\\FormExtractor\:\:parseItem\(\) expects null, string given\.$#'
-			identifier: argument.type
-			count: 6
-			path: Translation/Extractor/File/FormExtractor.php
-
-		-
 			message: '#^Property JMS\\TranslationBundle\\Translation\\Extractor\\File\\FormExtractor\:\:\$defaultDomain \(string\) does not accept null\.$#'
 			identifier: assign.propertyType
 			count: 1
@@ -405,12 +189,6 @@ parameters:
 		-
 			message: '#^Right side of && is always true\.$#'
 			identifier: booleanAnd.rightAlwaysTrue
-			count: 1
-			path: Translation/Extractor/File/FormExtractor.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between null and null will always evaluate to true\.$#'
-			identifier: identical.alwaysTrue
 			count: 1
 			path: Translation/Extractor/File/FormExtractor.php
 
@@ -433,56 +211,8 @@ parameters:
 			path: Translation/Extractor/File/TranslationContainerExtractor.php
 
 		-
-			message: '#^Return type \(void\) of method JMS\\TranslationBundle\\Translation\\Extractor\\File\\TranslationContainerExtractor\:\:afterTraverse\(\) should be compatible with return type \(array\<PhpParser\\Node\>\|null\) of method PhpParser\\NodeVisitor\:\:afterTraverse\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: Translation/Extractor/File/TranslationContainerExtractor.php
-
-		-
-			message: '#^Return type \(void\) of method JMS\\TranslationBundle\\Translation\\Extractor\\File\\TranslationContainerExtractor\:\:beforeTraverse\(\) should be compatible with return type \(array\<PhpParser\\Node\>\|null\) of method PhpParser\\NodeVisitor\:\:beforeTraverse\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: Translation/Extractor/File/TranslationContainerExtractor.php
-
-		-
-			message: '#^Return type \(void\) of method JMS\\TranslationBundle\\Translation\\Extractor\\File\\TranslationContainerExtractor\:\:leaveNode\(\) should be compatible with return type \(array\<PhpParser\\Node\>\|int\|PhpParser\\Node\|null\) of method PhpParser\\NodeVisitor\:\:leaveNode\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: Translation/Extractor/File/TranslationContainerExtractor.php
-
-		-
 			message: '#^Call to an undefined method Symfony\\Component\\Validator\\Mapping\\MetadataInterface\:\:getConstrainedProperties\(\)\.$#'
 			identifier: method.notFound
-			count: 1
-			path: Translation/Extractor/File/ValidationExtractor.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ReflectionProperty and ''isPromoted'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: Translation/Extractor/File/ValidationExtractor.php
-
-		-
-			message: '#^Return type \(void\) of method JMS\\TranslationBundle\\Translation\\Extractor\\File\\ValidationExtractor\:\:afterTraverse\(\) should be compatible with return type \(array\<PhpParser\\Node\>\|null\) of method PhpParser\\NodeVisitor\:\:afterTraverse\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: Translation/Extractor/File/ValidationExtractor.php
-
-		-
-			message: '#^Return type \(void\) of method JMS\\TranslationBundle\\Translation\\Extractor\\File\\ValidationExtractor\:\:beforeTraverse\(\) should be compatible with return type \(array\<PhpParser\\Node\>\|null\) of method PhpParser\\NodeVisitor\:\:beforeTraverse\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: Translation/Extractor/File/ValidationExtractor.php
-
-		-
-			message: '#^Return type \(void\) of method JMS\\TranslationBundle\\Translation\\Extractor\\File\\ValidationExtractor\:\:enterNode\(\) should be compatible with return type \(array\<PhpParser\\Node\>\|int\|PhpParser\\Node\|null\) of method PhpParser\\NodeVisitor\:\:enterNode\(\)$#'
-			identifier: method.childReturnType
-			count: 1
-			path: Translation/Extractor/File/ValidationExtractor.php
-
-		-
-			message: '#^Return type \(void\) of method JMS\\TranslationBundle\\Translation\\Extractor\\File\\ValidationExtractor\:\:leaveNode\(\) should be compatible with return type \(array\<PhpParser\\Node\>\|int\|PhpParser\\Node\|null\) of method PhpParser\\NodeVisitor\:\:leaveNode\(\)$#'
-			identifier: method.childReturnType
 			count: 1
 			path: Translation/Extractor/File/ValidationExtractor.php
 
@@ -509,42 +239,6 @@ parameters:
 			identifier: notIdentical.alwaysTrue
 			count: 1
 			path: Translation/Extractor/FileExtractor.php
-
-		-
-			message: '#^Call to function assert\(\) with true will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 2
-			path: Translation/Loader/XliffLoader.php
-
-		-
-			message: '#^Call to method JMS\\TranslationBundle\\Translation\\Loader\\XliffLoader\:\:libxmlDisableEntityLoader\(\) on a separate line has no effect\.$#'
-			identifier: method.resultUnused
-			count: 2
-			path: Translation/Loader/XliffLoader.php
-
-		-
-			message: '#^Comparison operation "\>\=" between int\<80100, 80599\> and 80000 is always true\.$#'
-			identifier: greaterOrEqual.alwaysTrue
-			count: 1
-			path: Translation/Loader/XliffLoader.php
-
-		-
-			message: '#^Instanceof between JMS\\TranslationBundle\\Model\\Message\\XliffMessage and JMS\\TranslationBundle\\Model\\Message\\XliffMessage will always evaluate to true\.$#'
-			identifier: instanceof.alwaysTrue
-			count: 1
-			path: Translation/Loader/XliffLoader.php
-
-		-
-			message: '#^Instanceof between SimpleXMLElement and SimpleXMLElement will always evaluate to true\.$#'
-			identifier: instanceof.alwaysTrue
-			count: 1
-			path: Translation/Loader/XliffLoader.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: Translation/Loader/XliffLoader.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between null and string will always evaluate to true\.$#'
