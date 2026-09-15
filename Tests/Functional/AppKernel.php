@@ -23,7 +23,6 @@ namespace JMS\TranslationBundle\Tests\Functional;
 use JMS\TranslationBundle\Exception\RuntimeException;
 use JMS\TranslationBundle\JMSTranslationBundle;
 use JMS\TranslationBundle\Tests\Functional\Fixture\TestBundle\TestBundle;
-use Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -60,18 +59,12 @@ class AppKernel extends Kernel
 
     public function registerBundles(): iterable
     {
-        $bundles = [
+        return [
             new TestBundle(),
             new FrameworkBundle(),
             new TwigBundle(),
             new JMSTranslationBundle(),
         ];
-
-        if (class_exists(SensioFrameworkExtraBundle::class)) {
-            $bundles[] = new SensioFrameworkExtraBundle();
-        }
-
-        return $bundles;
     }
 
     public function registerContainerConfiguration(LoaderInterface $loader): void

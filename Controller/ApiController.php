@@ -26,12 +26,10 @@ use JMS\TranslationBundle\Translation\Updater;
 use JMS\TranslationBundle\Util\FileUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
- *
- * @Route("/api")
  */
 #[Route('/api')]
 class ApiController
@@ -59,12 +57,6 @@ class ApiController
      * @param string $locale
      *
      * @return Response
-     *
-     * @Route("/configs/{config}/domains/{domain}/locales/{locale}/messages",
-     *            methods={"PUT"},
-     *            name="jms_translation_update_message",
-     *            defaults = {"id" = null},
-     *            options = {"i18n" = false})
      */
     #[Route('/configs/{config}/domains/{domain}/locales/{locale}/messages', name: 'jms_translation_update_message', methods: [Request::METHOD_PUT], defaults: ['id' => null], options: ['i18n' => false])]
     public function updateMessageAction(Request $request, $config, $domain, $locale)

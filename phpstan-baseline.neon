@@ -61,12 +61,6 @@ parameters:
 			path: Tests/Functional/AppKernel.php
 
 		-
-			message: '#^Comparison operation "\>\=" between 1 and 0 is always true\.$#'
-			identifier: greaterOrEqual.alwaysTrue
-			count: 2
-			path: Tests/Functional/BaseTestCase.php
-
-		-
 			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNull\(\) with string will always evaluate to false\.$#'
 			identifier: method.impossibleType
 			count: 2

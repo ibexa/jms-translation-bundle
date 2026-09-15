@@ -21,21 +21,12 @@ declare(strict_types=1);
 namespace JMS\TranslationBundle\Tests\Functional;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class BaseTestCase extends WebTestCase
 {
     protected static function createKernel(array $options = []): KernelInterface
     {
-        if (version_compare(Kernel::VERSION, '7.0.0') >= 0) {
-            $conf = 'framework_sf7.yaml';
-        } elseif (version_compare(Kernel::VERSION, '6.0.0') >= 0) {
-            $conf = 'framework_sf6.yml';
-        } else {
-            $conf = 'framework.yml';
-        }
-
-        return new AppKernel($conf, $options['config'] ?? 'default.yml');
+        return new AppKernel('framework.yaml', $options['config'] ?? 'default.yml');
     }
 }

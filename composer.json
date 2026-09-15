@@ -1,5 +1,5 @@
 {
-    "name": "ibexa/translation-bundle",
+    "name": "ibexa/jms-translation-bundle",
     "type": "symfony-bundle",
     "description": "Puts the Symfony Translation Component on steroids",
     "keywords": [
@@ -20,38 +20,35 @@
             "email": "schmittjoh@gmail.com"
         }
     ],
-    "replace": {
-        "jms/translation-bundle": "^2.6"
-    },
     "require": {
-        "php": "^8.1",
+        "php": "^8.4",
+        "doctrine/annotations": "^2.0",
         "nikic/php-parser": "^5",
-        "symfony/console": "^5.4 || ^6.4 || ^7.1",
-        "symfony/framework-bundle": "^5.4 || ^6.4 || ^7.1",
-        "symfony/config": "^5.4 || ^6.4 || ^7.1",
-        "symfony/translation": "^5.4 || ^6.4 || ^7.1",
-        "symfony/translation-contracts": "^2.0 || ^3.0",
-        "symfony/validator": "^5.4 || ^6.4 || ^7.1",
-        "twig/twig": "^3.17",
-        "psr/log": "^1.0 || ^2.0 || ^3.0"
+        "psr/log": "^1.0 || ^2.0 || ^3.0",
+        "symfony/config": "^8.0",
+        "symfony/console": "^8.0",
+        "symfony/framework-bundle": "^8.0",
+        "symfony/translation": "^8.0",
+        "symfony/translation-contracts": "^3.0",
+        "symfony/validator": "^8.0",
+        "twig/twig": "^3.17"
     },
     "require-dev": {
-        "doctrine/annotations": "^1.11",
         "doctrine/coding-standard": "^9.0",
         "matthiasnoback/symfony-dependency-injection-test": "^6.0",
         "nyholm/nsa": "^1.0.1",
         "phpstan/phpstan": "^2.0",
         "phpunit/phpunit": "^11.5",
-        "symfony/asset": "^5.4 || ^6.4 || ^7.1",
-        "symfony/browser-kit": "^5.4 || ^6.4 || ^7.1",
-        "symfony/css-selector": "^5.4 || ^6.4 || ^7.1",
-        "symfony/filesystem": "^5.4 || ^6.4 || ^7.1",
-        "symfony/form": "^5.4 || ^6.4 || ^7.1",
-        "symfony/phpunit-bridge": "^7.2",
-        "symfony/property-access": "^5.4 || ^6.4 || ^7.1",
-        "symfony/routing": "^5.4 || ^6.4 || ^7.1",
-        "symfony/security-csrf": "^5.4 || ^6.4 || ^7.1",
-        "symfony/twig-bundle": "^5.4 || ^6.4 || ^7.1"
+        "symfony/asset": "^8.0",
+        "symfony/browser-kit": "^8.0",
+        "symfony/css-selector": "^8.0",
+        "symfony/filesystem": "^8.0",
+        "symfony/form": "^8.0",
+        "symfony/phpunit-bridge": "^8.0",
+        "symfony/property-access": "^8.0",
+        "symfony/routing": "^8.0",
+        "symfony/security-csrf": "^8.0",
+        "symfony/twig-bundle": "^8.0"
     },
     "config": {
         "sort-packages": true,
@@ -61,7 +58,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.x-dev"
+            "dev-3.x": "3.0.x-dev"
         },
         "symfony": {
             "allow-contrib": true
