@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   phpunit:
-    name: 'PHPUnit (PHP ${{ matrix.php-version }}, Symfony ${{ matrix.symfony-version }} + ${{ matrix.dependencies }} deps)'
+    name: 'PHPUnit (PHP ${{ matrix.php-version }}, Symfony ${{ matrix.symfony-version }})'
     runs-on: "ubuntu-24.04"
 
     strategy:
@@ -28,31 +28,24 @@ jobs:
         php-version:
           - '8.4'
           - '8.5'
-        dependencies:
-          - 'lowest'
-          - 'highest'
     steps:
       - name: "Checkout"
         uses: "actions/checkout@v6"
         with:
           fetch-depth: 2
 
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
+      - name: "Install dependencies with Composer"
+        uses: ibexa/gh-workflows/actions/composer-install@main
         with:
           php-version: "${{ matrix.php-version }}"
           coverage: "pcov"
-          tools: 'flex'
-          ini-values: "zend.assertions=1"
-
-      - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v4"
-        with:
-          dependency-versions: "${{ matrix.dependencies }}"
-          composer-options: "${{ matrix.composer-options }}"
+          gh-client-id: ${{ secrets.AUTOMATION_CLIENT_ID }}
+          gh-client-secret: ${{ secrets.AUTOMATION_CLIENT_SECRET }}
+          satis-network-key: ${{ secrets.SATIS_NETWORK_KEY }}
+          satis-network-token: ${{ secrets.SATIS_NETWORK_TOKEN }}
+          composer-options: "--with symfony/framework-bundle:${{ matrix.symfony-version }}"
         env:
           COMPOSER_FUND: '0'
-          SYMFONY_REQUIRE: '${{ matrix.symfony-version }}'
 
       - name: Run tests
         run: |
@@ -71,29 +64,17 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # Pre-installs the symfony/flex global plugin so the SYMFONY_REQUIRE env
-      # below constrains the whole Symfony component family during the composer
-      # install that follows, not just the packages this bundle requires
-      # directly - otherwise transitive components (e.g. symfony/dependency-injection
-      # via symfony/framework-bundle) can resolve to a newer major on PHP 8.4.
-      - name: "Install PHP with Symfony Flex"
-        uses: "shivammathur/setup-php@v2"
-        with:
-          php-version: "${{ matrix.php }}"
-          coverage: "none"
-          tools: 'flex'
-
       - name: Install Composer dependencies
         uses: ibexa/gh-workflows/actions/composer-install@main
         with:
+          php-version: "${{ matrix.php }}"
           gh-client-id: ${{ secrets.AUTOMATION_CLIENT_ID }}
           gh-client-secret: ${{ secrets.AUTOMATION_CLIENT_SECRET }}
           satis-network-key: ${{ secrets.SATIS_NETWORK_KEY }}
           satis-network-token: ${{ secrets.SATIS_NETWORK_TOKEN }}
-          composer-options: "--prefer-dist --no-progress --no-suggest"
+          composer-options: "--prefer-dist --no-progress --with symfony/framework-bundle:^8.0"
         env:
           COMPOSER_FUND: '0'
-          SYMFONY_REQUIRE: '^8.0'
 
       - name: Run PHPStan analysis
         run: composer run-script phpstan
