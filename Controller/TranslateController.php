@@ -24,10 +24,9 @@ use JMS\TranslationBundle\Exception\RuntimeException;
 use JMS\TranslationBundle\Translation\ConfigFactory;
 use JMS\TranslationBundle\Translation\LoaderManager;
 use JMS\TranslationBundle\Util\FileUtils;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Twig\Environment;
 
 /**
@@ -76,9 +75,6 @@ class TranslateController
      * @param Request $request
      *
      * @return Response|array
-     *
-     * @Route("/", name="jms_translation_index", options = {"i18n" = false})
-     * @Template("@JMSTranslation/Translate/index.html.twig")
      */
     #[Route('/', name: 'jms_translation_index', options: ['i18n' => false])]
     public function indexAction(Request $request)

@@ -6,11 +6,12 @@ on:
     branches:
       - "master"
       - "2.x"
+      - "3.x"
 
 jobs:
   coding-standards:
     name: "Coding Standards"
-    runs-on: "ubuntu-24.04"
+    runs-on: "ubuntu-26.04"
 
     strategy:
       matrix:
@@ -19,18 +20,18 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v6"
-
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
-        with:
-          coverage: "none"
-          php-version: "${{ matrix.php-version }}"
-          tools: "cs2pr"
-          extensions: pdo_sqlite
+        uses: "actions/checkout@v7"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v4"
+        uses: ibexa/gh-workflows/actions/composer-install@main
+        with:
+          php-version: "${{ matrix.php-version }}"
+          gh-client-id: ${{ secrets.AUTOMATION_CLIENT_ID }}
+          gh-client-secret: ${{ secrets.AUTOMATION_CLIENT_SECRET }}
+          satis-network-key: ${{ secrets.SATIS_NETWORK_KEY }}
+          satis-network-token: ${{ secrets.SATIS_NETWORK_TOKEN }}
+        env:
+          COMPOSER_FUND: '0'
 
       - name: "Run PHP_CodeSniffer"
         run: "vendor/bin/phpcs"

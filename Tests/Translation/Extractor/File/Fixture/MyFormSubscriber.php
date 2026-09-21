@@ -18,7 +18,7 @@ class MyFormSubscriber implements EventSubscriberInterface
         $this->factory = $factory;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         // Tells the dispatcher that we want to listen on the form.pre_set_data
         // event and that the preSetData method should be called.

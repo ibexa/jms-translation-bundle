@@ -21,7 +21,7 @@ declare(strict_types=1);
 namespace JMS\TranslationBundle\Tests\Translation\Extractor\File\Fixture;
 
 use Symfony\Component\HttpFoundation\Session;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * This is a sample controller class.
