@@ -24,10 +24,18 @@ jobs:
       fail-fast: false
       matrix:
         symfony-version:
+          - '^7.4'
           - '^8.0'
         php-version:
+          - '8.3'
           - '8.4'
           - '8.5'
+        exclude:
+          # Symfony 8 requires PHP 8.4+
+          - symfony-version: '^8.0'
+            php-version: '8.3'
+          - symfony-version: '^7.4'
+            php-version: '8.5'
     steps:
       - name: "Checkout"
         uses: "actions/checkout@v7"
@@ -52,7 +60,7 @@ jobs:
           SYMFONY_PHPUNIT_VERSION=11.5 SYMFONY_DEPRECATIONS_HELPER='max[direct]=0&verbose=1&quiet[]=indirect' vendor/bin/simple-phpunit ${PHPUNIT_FLAGS}
 
   phpstan:
-    name: 'PHPStan (PHP ${{ matrix.php }})'
+    name: 'PHPStan (PHP ${{ matrix.php }}, Symfony ${{ matrix.symfony-version }})'
     runs-on: "ubuntu-26.04"
 
     strategy:
@@ -60,6 +68,9 @@ jobs:
       matrix:
         php:
           - '8.4'
+        symfony-version:
+          - '^7.4'
+          - '^8.0'
 
     steps:
       - uses: actions/checkout@v7
@@ -72,7 +83,7 @@ jobs:
           gh-client-secret: ${{ secrets.AUTOMATION_CLIENT_SECRET }}
           satis-network-key: ${{ secrets.SATIS_NETWORK_KEY }}
           satis-network-token: ${{ secrets.SATIS_NETWORK_TOKEN }}
-          composer-options: "--prefer-dist --no-progress --with symfony/framework-bundle:^8.0"
+          composer-options: "--prefer-dist --no-progress --with symfony/framework-bundle:${{ matrix.symfony-version }}"
         env:
           COMPOSER_FUND: '0'
 
