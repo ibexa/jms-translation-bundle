@@ -78,6 +78,20 @@ translations in PHP code, the ``@Desc`` annotation:
 You can place the doc comment anywhere in the method call chain or directly 
 before the key.
 
+Symfony's translatable messages, created with ``new TranslatableMessage(...)`` or the
+``t()`` function, are translated later, e.g. by the ``trans`` Twig filter. Their ids are
+extracted too, and the ``@Desc`` annotation describes them the same way, before the message
+id, the message, or the statement it is part of:
+
+.. code-block :: php
+
+    <?php
+
+    use Symfony\Component\Translation\TranslatableMessage;
+
+    /** @Desc("Hello %name%!") */
+    $greeting = new TranslatableMessage('text.greeting', ['%name%' => $name], 'app');
+
 Extracting Translation Messages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This bundle automatically supports extracting messages from the following 
@@ -87,6 +101,7 @@ sources:
 - PHP: 
 
   - all calls to the ``trans`` method
+  - all ``TranslatableMessage`` objects and calls to the ``t`` function
   - all classes implementing the ``TranslationContainerInterface``
   - all form labels that are defined as options to the ->add() method of the FormBuilder
   - messages declared in validation constraints
