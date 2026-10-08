@@ -106,12 +106,21 @@ translator accordingly, or add ``/** @Ignore */`` to the call:
     /** @Ignore */
     $greeting->trans($t);
 
+In Twig, the ``t()`` function creates them, and the ``desc`` filter describes them, either
+where they are translated or where they are created:
+
+.. code-block :: jinja
+
+    {{ t('text.greeting', {'%name%': name}, 'app')|trans|desc('Hello %name%!') }}
+
+    {% set greeting = t('text.greeting', {'%name%': name}, 'app')|desc('Hello %name%!') %}
+
 Extracting Translation Messages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This bundle automatically supports extracting messages from the following 
 sources:
 
-- Twig: ``trans`` filters as well as ``trans`` blocks
+- Twig: ``trans`` filters as well as ``trans`` blocks, and the ``t`` function
 - PHP: 
 
   - all calls to the ``trans`` method of a translator

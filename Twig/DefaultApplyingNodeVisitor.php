@@ -26,6 +26,7 @@ use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\Binary\EqualBinary;
 use Twig\Node\Expression\FilterExpression;
+use Twig\Node\Expression\FunctionExpression;
 use Twig\Node\Expression\Ternary\ConditionalTernary;
 use Twig\Node\Node;
 use Twig\Node\Nodes;
@@ -67,7 +68,19 @@ class DefaultApplyingNodeVisitor implements NodeVisitorInterface
             }
 
             if (!$transNode instanceof FilterExpression) {
+                if (self::isTranslatableMessage($transNode)) {
+                    // It describes a TranslatableMessage translated later: there is no translation to default here
+                    return $node;
+                }
+
                 throw new RuntimeException(sprintf('The "desc" filter in "%s" line %d must be applied after a "trans" filter.', $node->getTemplateName(), $node->getTemplateLine()));
+            }
+
+            $translatedNode = $transNode->getNode('node');
+            if (self::isTranslatableMessage($translatedNode)) {
+                \assert($translatedNode instanceof FunctionExpression);
+
+                return $this->applyToTranslatableMessage($node, $transNode, $translatedNode);
             }
 
             $wrappingNode = $node->getNode('node');
@@ -117,6 +130,63 @@ class DefaultApplyingNodeVisitor implements NodeVisitorInterface
         }
 
         return $node;
+    }
+
+    /**
+     * Applies the "desc" filter to "t(...)|trans": the translation of the message without its parameters is compared
+     * with the message id, rather than with the TranslatableMessage. The default value is translated as the message,
+     * as its id, so that the parameters apply to it, translatable ones included.
+     */
+    private function applyToTranslatableMessage(FilterExpression $descNode, FilterExpression $transNode, FunctionExpression $message): Node
+    {
+        if ($descNode->getNode('node') !== $transNode) {
+            // Other filters come between: the default value would not stand for the same text
+            return $descNode;
+        }
+
+        $messageArguments = iterator_to_array($message->getNode('arguments'));
+        $idKey = array_key_exists('message', $messageArguments) ? 'message' : 0;
+        $idNode = $messageArguments[$idKey] ?? null;
+        if (!$idNode instanceof AbstractExpression) {
+            return $descNode;
+        }
+
+        $lineno      = $transNode->getTemplateLine();
+        $defaultNode = iterator_to_array($descNode->getNode('arguments'))[0];
+        \assert($defaultNode instanceof AbstractExpression);
+
+        $testMessage = clone $message;
+        $parametersKey = array_key_exists('parameters', $messageArguments) ? 'parameters' : (isset($messageArguments[1]) ? 1 : null);
+        if (null !== $parametersKey) {
+            $testMessageArguments                 = $messageArguments;
+            $testMessageArguments[$parametersKey] = new ArrayExpression([], $lineno);
+            $testMessage->setNode('arguments', new Nodes($testMessageArguments));
+
+            $defaultMessageArguments         = $messageArguments;
+            $defaultMessageArguments[$idKey] = $defaultNode;
+            $defaultMessage                  = clone $message;
+            $defaultMessage->setNode('arguments', new Nodes($defaultMessageArguments));
+
+            $defaultNode = clone $transNode;
+            $defaultNode->setNode('node', $defaultMessage);
+        }
+
+        $testNode = clone $transNode;
+        $testNode->setNode('node', $testMessage);
+
+        $descNode->setNode('node', new ConditionalTernary(
+            new EqualBinary($testNode, $idNode, $lineno),
+            $defaultNode,
+            clone $transNode,
+            $lineno
+        ));
+
+        return $descNode;
+    }
+
+    private static function isTranslatableMessage(Node $node): bool
+    {
+        return $node instanceof FunctionExpression && 't' === $node->getAttribute('name');
     }
 
     public function leaveNode(Node $node, Environment $env): Node

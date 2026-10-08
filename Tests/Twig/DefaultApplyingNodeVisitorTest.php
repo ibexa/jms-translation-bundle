@@ -20,6 +20,13 @@ declare(strict_types=1);
 
 namespace JMS\TranslationBundle\Tests\Twig;
 
+use JMS\TranslationBundle\Twig\TranslationExtension;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Bridge\Twig\Extension\TranslationExtension as SymfonyTranslationExtension;
+use Symfony\Component\Translation\Loader\ArrayLoader as TranslationArrayLoader;
+use Symfony\Component\Translation\Translator;
+use Twig\Environment;
+use Twig\Loader\ArrayLoader;
 use Twig\Node\Expression\Binary\EqualBinary;
 use Twig\Node\Expression\FilterExpression;
 use Twig\Node\Expression\Ternary\ConditionalTernary;
@@ -30,6 +37,39 @@ use Twig\TwigFilter;
 
 class DefaultApplyingNodeVisitorTest extends BaseTwigTestCase
 {
+    /**
+     * A TranslatableMessage ("t()") gets the default value of its "desc" filter where it has no translation.
+     */
+    #[DataProvider('provideTranslatableMessages')]
+    public function testApplyToTranslatableMessages(string $template, string $expected): void
+    {
+        $translator = new Translator('en');
+        $translator->addLoader('array', new TranslationArrayLoader());
+        $translator->addResource('array', ['translated' => 'Translated', 'translated %name%' => 'Translated for %name%', 'name' => 'Bob'], 'en');
+        $translator->addResource('array', ['name' => 'Robert'], 'fr');
+
+        $env = new Environment(new ArrayLoader(['template' => $template]));
+        $env->addExtension(new SymfonyTranslationExtension($translator));
+        $env->addExtension(new TranslationExtension(null, true));
+
+        self::assertSame($expected, $env->render('template'));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function provideTranslatableMessages(): iterable
+    {
+        yield 'no translation' => ["{{ t('missing')|trans|desc('Default') }}", 'Default'];
+        yield 'no translation, with parameters' => ["{{ t('missing %name%', {'%name%': 'Bob'})|trans|desc('Hello %name%') }}", 'Hello Bob'];
+        yield 'named parameters' => ["{{ t('missing %name%', parameters = {'%name%': 'Bob'})|trans|desc('Hello %name%') }}", 'Hello Bob'];
+        yield 'no translation, with a translatable parameter' => ["{{ t('missing %name%', {'%name%': t('name')})|trans|desc('Hello %name%') }}", 'Hello Bob'];
+        yield 'no translation, in another locale' => ["{{ t('missing %name%', {'%name%': t('name')})|trans('fr')|desc('Hello %name%') }}", 'Hello Robert'];
+        yield 'translation' => ["{{ t('translated')|trans|desc('Default') }}", 'Translated'];
+        yield 'translation, with parameters' => ["{{ t('translated %name%', {'%name%': 'Bob'})|trans|desc('Hello %name%') }}", 'Translated for Bob'];
+        yield 'described before it is translated' => ["{% set message = t('missing')|desc('Default') %}{{ message|trans }}", 'missing'];
+    }
+
     public function testApply(): void
     {
         $this->assertEquals(

@@ -30,6 +30,7 @@ use Twig\Environment;
 use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Expression\FilterExpression;
+use Twig\Node\Expression\FunctionExpression;
 use Twig\Node\Node;
 use Twig\NodeTraverser;
 use Twig\NodeVisitor\NodeVisitorInterface;
@@ -120,17 +121,7 @@ class TwigFileExtractor implements FileVisitorInterface, NodeVisitorInterface
 
                     $name = $this->stack[$i]->hasAttribute('name') ? $this->stack[$i]->getAttribute('name') : $this->stack[$i]->getNode('filter')->getAttribute('value');
                     if ($name === 'desc' || $name === 'meaning') {
-                        $arguments = iterator_to_array($this->stack[$i]->getNode('arguments'));
-                        if (! isset($arguments[0])) {
-                            throw new RuntimeException(sprintf('The "%s" filter requires exactly one argument, the description text.', $name));
-                        }
-
-                        $text = $arguments[0];
-                        if (! $text instanceof ConstantExpression) {
-                            throw new RuntimeException(sprintf('The first argument of the "%s" filter must be a constant expression, such as a string.', $name));
-                        }
-
-                        $message->{'set' . $name}($text->getAttribute('value'));
+                        $this->describe($message, $this->stack[$i], $name);
                     } elseif ('trans' === $name) {
                         break;
                     }
@@ -138,9 +129,58 @@ class TwigFileExtractor implements FileVisitorInterface, NodeVisitorInterface
 
                 $this->catalogue->add($message);
             }
+        } elseif ($node instanceof FunctionExpression && 't' === $node->getAttribute('name')) {
+            // A TranslatableMessage, translated later, e.g. with the "trans" filter
+            $arguments = iterator_to_array($node->getNode('arguments'));
+            $idNode = $arguments['message'] ?? $arguments[0] ?? null;
+            if (!$idNode instanceof ConstantExpression) {
+                return $node;
+            }
+
+            $domain = 'messages';
+            $argument = $this->findDomainArgument($arguments, 't');
+            if (null !== $argument) {
+                if (! $argument instanceof ConstantExpression) {
+                    return $node;
+                }
+
+                $domain = $argument->getAttribute('value') ?? 'messages';
+            }
+
+            $message = new Message($idNode->getAttribute('value'), $domain);
+            $message->addSource($this->fileSourceFactory->create($this->file, $node->getTemplateLine()));
+
+            // The "desc" and "meaning" filters may come after the "trans" filter translating the message
+            for ($i = count($this->stack) - 2; $i >= 0; $i -= 1) {
+                if (!$this->stack[$i] instanceof FilterExpression) {
+                    break;
+                }
+
+                $name = $this->stack[$i]->hasAttribute('name') ? $this->stack[$i]->getAttribute('name') : $this->stack[$i]->getNode('filter')->getAttribute('value');
+                if ($name === 'desc' || $name === 'meaning') {
+                    $this->describe($message, $this->stack[$i], $name);
+                }
+            }
+
+            $this->catalogue->add($message);
         }
 
         return $node;
+    }
+
+    private function describe(Message $message, FilterExpression $filter, string $name): void
+    {
+        $arguments = iterator_to_array($filter->getNode('arguments'));
+        if (! isset($arguments[0])) {
+            throw new RuntimeException(sprintf('The "%s" filter requires exactly one argument, the description text.', $name));
+        }
+
+        $text = $arguments[0];
+        if (! $text instanceof ConstantExpression) {
+            throw new RuntimeException(sprintf('The first argument of the "%s" filter must be a constant expression, such as a string.', $name));
+        }
+
+        $message->{'set' . $name}($text->getAttribute('value'));
     }
 
     private function findDomainArgument(array $arguments, string $name): ?AbstractExpression
