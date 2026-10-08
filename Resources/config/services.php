@@ -30,6 +30,7 @@ use JMS\TranslationBundle\Translation\Dumper\XliffDumper;
 use JMS\TranslationBundle\Translation\Dumper\YamlDumper;
 use JMS\TranslationBundle\Translation\Extractor\File\AuthenticationMessagesExtractor;
 use JMS\TranslationBundle\Translation\Extractor\File\DefaultPhpFileExtractor;
+use JMS\TranslationBundle\Translation\Extractor\File\DescAttributeExtractor;
 use JMS\TranslationBundle\Translation\Extractor\File\FormExtractor;
 use JMS\TranslationBundle\Translation\Extractor\File\TranslatableMessageExtractor;
 use JMS\TranslationBundle\Translation\Extractor\File\TranslationContainerExtractor;
@@ -60,6 +61,7 @@ return static function (ContainerConfigurator $container): void {
         ->set('jms_translation.extractor.file.default_php_extractor', DefaultPhpFileExtractor::class)
         ->set('jms_translation.extractor.file.translation_container_extractor', TranslationContainerExtractor::class)
         ->set('jms_translation.extractor.file.translatable_message_extractor', TranslatableMessageExtractor::class)
+        ->set('jms_translation.extractor.file.desc_attribute_extractor', DescAttributeExtractor::class)
         ->set('jms_translation.extractor.file.twig_extractor', TwigFileExtractor::class)
         ->set('jms_translation.extractor.file.form_extractor.class', FormExtractor::class)
         ->set('jms_translation.extractor.file.validation_extractor.class', ValidationExtractor::class)
@@ -198,6 +200,13 @@ return static function (ContainerConfigurator $container): void {
         ->private()
         ->args([
             service('jms_translation.doc_parser'),
+            service('jms_translation.file_source_factory'),
+        ])
+        ->tag('jms_translation.file_visitor');
+
+    $services->set('jms_translation.extractor.file.desc_attribute_extractor', '%jms_translation.extractor.file.desc_attribute_extractor%')
+        ->private()
+        ->args([
             service('jms_translation.file_source_factory'),
         ])
         ->tag('jms_translation.file_visitor');

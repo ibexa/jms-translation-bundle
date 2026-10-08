@@ -115,6 +115,37 @@ where they are translated or where they are created:
 
     {% set greeting = t('text.greeting', {'%name%': name}, 'app')|desc('Hello %name%!') %}
 
+PHP attributes cannot describe an expression, but they can describe a class constant or an
+enum case whose value is a message id: ``Desc`` and ``Meaning``, the equivalents of the
+annotations, and ``Domain``, its translation domain, on the constant or case, or on its class
+or enum. Without it, the domain is "messages":
+
+.. code-block :: php
+
+    <?php
+
+    use JMS\TranslationBundle\Annotation\Desc;
+    use JMS\TranslationBundle\Annotation\Domain;
+    use JMS\TranslationBundle\Annotation\Meaning;
+    use Symfony\Contracts\Translation\TranslatableInterface;
+    use Symfony\Contracts\Translation\TranslatorInterface;
+
+    #[Domain('app')]
+    enum Failure: string implements TranslatableInterface
+    {
+        #[Desc('The service could not be reached.')]
+        case Unreachable = 'failure.unreachable';
+
+        #[Desc('The service rejected the credentials.'), Meaning('Authentication')]
+        case Unauthorized = 'failure.unauthorized';
+
+        public function trans(TranslatorInterface $translator, ?string $locale = null): string
+        {
+            /** @Ignore */
+            return $translator->trans($this->value, [], 'app', $locale);
+        }
+    }
+
 Extracting Translation Messages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This bundle automatically supports extracting messages from the following 
@@ -125,6 +156,7 @@ sources:
 
   - all calls to the ``trans`` method of a translator
   - all ``TranslatableMessage`` objects and calls to the ``t`` function
+  - all class constants and enum cases described with the ``Desc`` attribute
   - all classes implementing the ``TranslationContainerInterface``
   - all form labels that are defined as options to the ->add() method of the FormBuilder
   - messages declared in validation constraints
