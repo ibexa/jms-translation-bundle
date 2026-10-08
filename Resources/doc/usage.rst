@@ -92,6 +92,20 @@ id, the message, or the statement it is part of:
     /** @Desc("Hello %name%!") */
     $greeting = new TranslatableMessage('text.greeting', ['%name%' => $name], 'app');
 
+Such an object is translated by its own ``trans()`` method, e.g. ``$greeting->trans($translator)``,
+which has no message id to extract. The extractor tells it from a translator's ``trans()`` call by
+the name of its first argument: a variable, property or method whose name contains "translator",
+e.g. ``$translator``, ``$this->translator`` or ``$this->getTranslator()``. With any other name, the
+call is taken for a translator's whose message id is not a string, and reported: name the
+translator accordingly, or add ``/** @Ignore */`` to the call:
+
+.. code-block :: php
+
+    <?php
+
+    /** @Ignore */
+    $greeting->trans($t);
+
 Extracting Translation Messages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This bundle automatically supports extracting messages from the following 
@@ -100,7 +114,7 @@ sources:
 - Twig: ``trans`` filters as well as ``trans`` blocks
 - PHP: 
 
-  - all calls to the ``trans`` method
+  - all calls to the ``trans`` method of a translator
   - all ``TranslatableMessage`` objects and calls to the ``t`` function
   - all classes implementing the ``TranslationContainerInterface``
   - all form labels that are defined as options to the ->add() method of the FormBuilder

@@ -122,6 +122,10 @@ class DefaultPhpFileExtractor implements LoggerAwareInterface, FileVisitorInterf
             return null;
         }
 
+        if (!$this->isTranslatorCall($node)) {
+            return null;
+        }
+
         $ignore = false;
         $desc = $meaning = null;
         if (null !== $docComment = $this->getDocCommentForNode($node)) {
@@ -256,6 +260,40 @@ class DefaultPhpFileExtractor implements LoggerAwareInterface, FileVisitorInterf
 
     public function visitTwigFile(\SplFileInfo $file, MessageCatalogue $catalogue, TwigNode $ast)
     {
+    }
+
+    /**
+     * Tells a translator's trans() call, which has a message id, from TranslatableInterface::trans($translator),
+     * which translates an object holding its message, e.g. a TranslatableMessage, and from calls without arguments.
+     *
+     * The first argument of the latter is a translator, recognized by its name: a variable, property or method
+     * whose name contains "translator", e.g. $translator, $this->translator or $this->getTranslator().
+     */
+    private function isTranslatorCall(Node\Expr\MethodCall $node): bool
+    {
+        if ($node->isFirstClassCallable() || !isset($node->args[0]) || !$node->args[0] instanceof Node\Arg) {
+            return false;
+        }
+
+        $firstArgument = $node->args[0]->value;
+        if (
+            $firstArgument instanceof Node\Expr\Variable
+            || $firstArgument instanceof Node\Expr\PropertyFetch
+            || $firstArgument instanceof Node\Expr\NullsafePropertyFetch
+            || $firstArgument instanceof Node\Expr\StaticPropertyFetch
+            || $firstArgument instanceof Node\Expr\MethodCall
+            || $firstArgument instanceof Node\Expr\NullsafeMethodCall
+            || $firstArgument instanceof Node\Expr\StaticCall
+        ) {
+            $name = $firstArgument->name;
+            if ($name instanceof Node\Identifier) {
+                $name = $name->toString();
+            }
+
+            return !is_string($name) || false === stripos($name, 'translator');
+        }
+
+        return true;
     }
 
     /**
