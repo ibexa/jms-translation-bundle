@@ -103,18 +103,11 @@ class DefaultApplyingNodeVisitor implements NodeVisitorInterface
                 $testNodeArguments[0] = new ArrayExpression([], $lineno);
                 $testNode->setNode('arguments', new Nodes($testNodeArguments));
 
-                $replaceFilter = $env->getFilter('replace');
-                if (null === $replaceFilter) {
-                    throw new RuntimeException(sprintf('The "replace" filter, required by the "desc" filter in "%s" line %d, is not available.', $node->getTemplateName(), $node->getTemplateLine()));
-                }
-
-                // wrap the default node in a |replace filter
-                $defaultNode = new FilterExpression(
-                    $defaultNode,
-                    $replaceFilter,
-                    new Nodes([$wrappingNodeArguments[0]]),
-                    $lineno
-                );
+                // translate the default node as its id, so that the replacements apply to it as they
+                // would to its translation: translatable ones are translated, and plurals selected
+                $translatedDefaultNode = clone $wrappingNode;
+                $translatedDefaultNode->setNode('node', $defaultNode);
+                $defaultNode = $translatedDefaultNode;
             }
 
             $transNodeInner = $transNode->getNode('node');
