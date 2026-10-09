@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace JMS\TranslationBundle\Tests\Translation\Extractor\File;
 
+use JMS\TranslationBundle\Exception\RuntimeException;
 use JMS\TranslationBundle\Model\Message;
 use JMS\TranslationBundle\Model\MessageCatalogue;
 use JMS\TranslationBundle\Translation\Extractor\File\DefaultPhpFileExtractor;
@@ -65,6 +66,34 @@ class DefaultPhpFileExtractorTest extends PhpFileExtractorTestCase
         $expected->add($message);
 
         $this->assertEquals($expected, $catalogue);
+    }
+
+    /**
+     * TranslatableInterface::trans($translator) translates an object holding its message: it has no message id. A
+     * translator of another name, not recognized, needs @Ignore.
+     */
+    public function testTranslatableInterfaceCallsAreLeftAlone(): void
+    {
+        $fixture = new \SplFileInfo(__DIR__ . '/Fixture/TranslatableTransCalls.php');
+
+        $expected = new MessageCatalogue();
+        $message = new Message('text.still_extracted');
+        $message->addSource($this->getFileSourceFactory()->create($fixture, 25));
+        $expected->add($message);
+
+        $this->assertEquals($expected, $this->extract('TranslatableTransCalls.php'));
+    }
+
+    /**
+     * The translator passed to TranslatableInterface::trans() is only recognized by its name: with another name, the
+     * call is taken for a translator's, whose message id is not a string, unless it is ignored.
+     */
+    public function testTranslatableInterfaceCallWithAnotherTranslatorNameIsReported(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Can only extract the translation id from a scalar string, but got "PhpParser\Node\Expr\Variable".');
+
+        $this->extract('TranslatableTransCallWithOtherTranslatorName.php');
     }
 
     public function testExtractTemplate(): void

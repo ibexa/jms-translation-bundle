@@ -127,6 +127,30 @@ class TwigFileExtractorTest extends TestCase
         $this->assertEquals($expected, $this->extract('edit.html.twig'));
     }
 
+    public function testExtractTranslatableMessages(): void
+    {
+        $expected          = new MessageCatalogue();
+        $fileSourceFactory = $this->getFileSourceFactory();
+        $fixtureSplInfo    = new \SplFileInfo(__DIR__ . '/Fixture/translatable_messages.html.twig');
+
+        $message = new Message('t.plain');
+        $message->addSource($fileSourceFactory->create($fixtureSplInfo, 1));
+        $expected->add($message);
+
+        $message = new Message('t.described', 'app');
+        $message->setDesc('Hello %name%');
+        $message->setMeaning('Greeting');
+        $message->addSource($fileSourceFactory->create($fixtureSplInfo, 3));
+        $expected->add($message);
+
+        $message = new Message('t.saved', 'app');
+        $message->setDesc('Saved');
+        $message->addSource($fileSourceFactory->create($fixtureSplInfo, 5));
+        $expected->add($message);
+
+        $this->assertEquals($expected, $this->extract('translatable_messages.html.twig'));
+    }
+
     public function testEmbeddedTemplate(): void
     {
         $expected          = new MessageCatalogue();

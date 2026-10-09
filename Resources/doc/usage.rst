@@ -78,15 +78,85 @@ translations in PHP code, the ``@Desc`` annotation:
 You can place the doc comment anywhere in the method call chain or directly 
 before the key.
 
+Symfony's translatable messages, created with ``new TranslatableMessage(...)`` or the
+``t()`` function, are translated later, e.g. by the ``trans`` Twig filter. Their ids are
+extracted too, and the ``@Desc`` annotation describes them the same way, before the message
+id, the message, or the statement it is part of:
+
+.. code-block :: php
+
+    <?php
+
+    use Symfony\Component\Translation\TranslatableMessage;
+
+    /** @Desc("Hello %name%!") */
+    $greeting = new TranslatableMessage('text.greeting', ['%name%' => $name], 'app');
+
+Such an object is translated by its own ``trans()`` method, e.g. ``$greeting->trans($translator)``,
+which has no message id to extract. The extractor tells it from a translator's ``trans()`` call by
+the name of its first argument: a variable, property or method whose name contains "translator",
+e.g. ``$translator``, ``$this->translator`` or ``$this->getTranslator()``. With any other name, the
+call is taken for a translator's whose message id is not a string, and reported: name the
+translator accordingly, or add ``/** @Ignore */`` to the call:
+
+.. code-block :: php
+
+    <?php
+
+    /** @Ignore */
+    $greeting->trans($t);
+
+In Twig, the ``t()`` function creates them, and the ``desc`` filter describes them, either
+where they are translated or where they are created:
+
+.. code-block :: jinja
+
+    {{ t('text.greeting', {'%name%': name}, 'app')|trans|desc('Hello %name%!') }}
+
+    {% set greeting = t('text.greeting', {'%name%': name}, 'app')|desc('Hello %name%!') %}
+
+PHP attributes cannot describe an expression, but they can describe a class constant or an
+enum case whose value is a message id: ``Desc`` and ``Meaning``, the equivalents of the
+annotations, and ``Domain``, its translation domain, on the constant or case, or on its class
+or enum. Without it, the domain is "messages":
+
+.. code-block :: php
+
+    <?php
+
+    use JMS\TranslationBundle\Annotation\Desc;
+    use JMS\TranslationBundle\Annotation\Domain;
+    use JMS\TranslationBundle\Annotation\Meaning;
+    use Symfony\Contracts\Translation\TranslatableInterface;
+    use Symfony\Contracts\Translation\TranslatorInterface;
+
+    #[Domain('app')]
+    enum Failure: string implements TranslatableInterface
+    {
+        #[Desc('The service could not be reached.')]
+        case Unreachable = 'failure.unreachable';
+
+        #[Desc('The service rejected the credentials.'), Meaning('Authentication')]
+        case Unauthorized = 'failure.unauthorized';
+
+        public function trans(TranslatorInterface $translator, ?string $locale = null): string
+        {
+            /** @Ignore */
+            return $translator->trans($this->value, [], 'app', $locale);
+        }
+    }
+
 Extracting Translation Messages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This bundle automatically supports extracting messages from the following 
 sources:
 
-- Twig: ``trans`` filters as well as ``trans`` blocks
+- Twig: ``trans`` filters as well as ``trans`` blocks, and the ``t`` function
 - PHP: 
 
-  - all calls to the ``trans`` method
+  - all calls to the ``trans`` method of a translator
+  - all ``TranslatableMessage`` objects and calls to the ``t`` function
+  - all class constants and enum cases described with the ``Desc`` attribute
   - all classes implementing the ``TranslationContainerInterface``
   - all form labels that are defined as options to the ->add() method of the FormBuilder
   - messages declared in validation constraints

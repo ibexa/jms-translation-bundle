@@ -1,0 +1,8 @@
+{{ t('t.plain')|trans }}
+
+{{ t('t.described', {'%name%': 'Bob'}, 'app')|trans|desc('Hello %name%')|meaning('Greeting') }}
+
+{% set saved = t('t.saved', domain = 'app')|desc('Saved') %}
+{{ saved|trans }}
+
+{{ t(dynamic_id)|trans }}

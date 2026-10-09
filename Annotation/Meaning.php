@@ -25,20 +25,34 @@ use JMS\TranslationBundle\Exception\RuntimeException;
 /**
  * @Annotation
  *
+ * The meaning of a translated message: an annotation in the doc comment of the message, or an attribute on the
+ * class constant or enum case whose value is the message id.
+ *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
+#[\Attribute(\Attribute::TARGET_CLASS_CONSTANT)]
 final class Meaning
 {
     /** @var string @Required */
     public $text;
 
-    public function __construct()
+    /**
+     * @param array{value?: string, text?: string}|string $values the values of the annotation, or the text as an attribute
+     * @param string|null $text   the text, as a named argument of the attribute
+     */
+    public function __construct(array|string $values = [], ?string $text = null)
     {
         if (0 === func_num_args()) {
             return;
         }
 
-        $values = func_get_arg(0);
+        if (is_string($values)) {
+            $values = ['text' => $values];
+        }
+
+        if (null !== $text) {
+            $values['text'] = $text;
+        }
 
         if (isset($values['value'])) {
             $values['text'] = $values['value'];

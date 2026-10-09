@@ -20,6 +20,13 @@ declare(strict_types=1);
 
 namespace JMS\TranslationBundle\Tests\Twig;
 
+use JMS\TranslationBundle\Twig\TranslationExtension;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Bridge\Twig\Extension\TranslationExtension as SymfonyTranslationExtension;
+use Symfony\Component\Translation\Loader\ArrayLoader as TranslationArrayLoader;
+use Symfony\Component\Translation\Translator;
+use Twig\Environment;
+use Twig\Loader\ArrayLoader;
 use Twig\Node\Expression\Binary\EqualBinary;
 use Twig\Node\Expression\FilterExpression;
 use Twig\Node\Expression\Ternary\ConditionalTernary;
@@ -30,6 +37,53 @@ use Twig\TwigFilter;
 
 class DefaultApplyingNodeVisitorTest extends BaseTwigTestCase
 {
+    /**
+     * A TranslatableMessage ("t()") gets the default value of its "desc" filter where it has no translation.
+     */
+    #[DataProvider('provideTranslatableMessages')]
+    public function testApplyToTranslatableMessages(string $template, string $expected): void
+    {
+        self::assertSame($expected, $this->render($template));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function provideTranslatableMessages(): iterable
+    {
+        yield 'no translation' => ["{{ t('missing')|trans|desc('Default') }}", 'Default'];
+        yield 'no translation, with parameters' => ["{{ t('missing %name%', {'%name%': 'Bob'})|trans|desc('Hello %name%') }}", 'Hello Bob'];
+        yield 'named parameters' => ["{{ t('missing %name%', parameters = {'%name%': 'Bob'})|trans|desc('Hello %name%') }}", 'Hello Bob'];
+        yield 'no translation, with a translatable parameter' => ["{{ t('missing %name%', {'%name%': t('name')})|trans|desc('Hello %name%') }}", 'Hello Bob'];
+        yield 'no translation, in another locale' => ["{{ t('missing %name%', {'%name%': t('name')})|trans('fr')|desc('Hello %name%') }}", 'Hello Robert'];
+        yield 'translation' => ["{{ t('translated')|trans|desc('Default') }}", 'Translated'];
+        yield 'translation, with parameters' => ["{{ t('translated %name%', {'%name%': 'Bob'})|trans|desc('Hello %name%') }}", 'Translated for Bob'];
+        yield 'described before it is translated' => ["{% set message = t('missing')|desc('Default') %}{{ message|trans }}", 'missing'];
+    }
+
+    /**
+     * A message id gets the default value of its "desc" filter where it has no translation, translated as the id would
+     * be, with the same parameters.
+     */
+    #[DataProvider('provideMessageIds')]
+    public function testApplyToMessageIds(string $template, string $expected): void
+    {
+        self::assertSame($expected, $this->render($template));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function provideMessageIds(): iterable
+    {
+        yield 'no translation' => ["{{ 'missing'|trans|desc('Default') }}", 'Default'];
+        yield 'no translation, with parameters' => ["{{ 'missing %name%'|trans({'%name%': 'Bob'})|desc('Hello %name%') }}", 'Hello Bob'];
+        yield 'no translation, with a translatable parameter' => ["{{ 'missing %name%'|trans({'%name%': t('name')})|desc('Hello %name%') }}", 'Hello Bob'];
+        yield 'no translation, in another locale' => ["{{ 'missing %name%'|trans({'%name%': t('name')}, locale = 'fr')|desc('Hello %name%') }}", 'Hello Robert'];
+        yield 'no translation, plural' => ["{{ 'missing.apples'|trans({'%count%': 3})|desc('{0} No apples|{1} One apple|]1,Inf] %count% apples') }}", '3 apples'];
+        yield 'translation, with parameters' => ["{{ 'translated %name%'|trans({'%name%': 'Bob'})|desc('Hello %name%') }}", 'Translated for Bob'];
+    }
+
     public function testApply(): void
     {
         $this->assertEquals(
@@ -56,17 +110,31 @@ class DefaultApplyingNodeVisitorTest extends BaseTwigTestCase
         self::assertInstanceOf(EqualBinary::class, $comparison);
         self::assertInstanceOf(Nodes::class, $comparison->getNode('left')->getNode('arguments'));
 
-        // the default value is wrapped in a "replace" filter, which since Twig 3.12 has to be
-        // created from the environment's TwigFilter instance instead of from the filter name
-        $replaceFilter = $this->unwrapEscape($conditions[1]->getNode('left'));
-        self::assertInstanceOf(FilterExpression::class, $replaceFilter);
-        self::assertSame('replace', $replaceFilter->getAttribute('name'));
+        // the default value is translated with the "trans" filter of the message, which since Twig 3.12
+        // has to hold the environment's TwigFilter instance instead of the filter name
+        $transFilter = $this->unwrapEscape($conditions[1]->getNode('left'));
+        self::assertInstanceOf(FilterExpression::class, $transFilter);
+        self::assertSame('trans', $transFilter->getAttribute('name'));
         self::assertTrue(
-            $replaceFilter->hasAttribute('twig_callable'),
-            'The "replace" filter was not created from a TwigFilter instance.'
+            $transFilter->hasAttribute('twig_callable'),
+            'The "trans" filter does not hold a TwigFilter instance.'
         );
-        self::assertInstanceOf(TwigFilter::class, $replaceFilter->getAttribute('twig_callable'));
-        self::assertInstanceOf(Nodes::class, $replaceFilter->getNode('arguments'));
+        self::assertInstanceOf(TwigFilter::class, $transFilter->getAttribute('twig_callable'));
+        self::assertInstanceOf(Nodes::class, $transFilter->getNode('arguments'));
+    }
+
+    private function render(string $template): string
+    {
+        $translator = new Translator('en');
+        $translator->addLoader('array', new TranslationArrayLoader());
+        $translator->addResource('array', ['translated' => 'Translated', 'translated %name%' => 'Translated for %name%', 'name' => 'Bob'], 'en');
+        $translator->addResource('array', ['name' => 'Robert'], 'fr');
+
+        $env = new Environment(new ArrayLoader(['template' => $template]));
+        $env->addExtension(new SymfonyTranslationExtension($translator));
+        $env->addExtension(new TranslationExtension(null, true));
+
+        return $env->render('template');
     }
 
     /**
